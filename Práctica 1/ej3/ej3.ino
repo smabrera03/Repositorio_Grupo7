@@ -40,6 +40,6 @@ void loop() {
 
   miServo.writeMicroseconds(angulo);
 
-  while (micros() - t_ini < 1000000) {}
+  while (micros() - t_ini < 20000) {}
 
 }
