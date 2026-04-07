@@ -27,8 +27,13 @@ void setup() {
 
 }
 
-float theta_x_gyro = 0; /*Posición angular estimada por el giroscopio, asumimos que inicialmente es 0*/
-float theta_x_acc = 0; /*Posición angular estimada por el giroscopio, asumimos que inicialmente es 0*/
+float theta_x_gyro = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es
+float theta_x_acc = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es
+float theta_x_fc = 0; 
+float theta_x_gyro_fc = 0;
+
+float alpha = 0.05;
+float beta = 1 - alpha;
 
 void loop() {
   unsigned long t_ini = micros();
@@ -36,11 +41,13 @@ void loop() {
   sensors_event_t a, g, t;
   mpu.getEvent(&a, &g, &t);
   
-  theta_x_gyro = theta_x_gyro + (180/3.14159) * g.gyro.x * 0.02; //esta estimación tiene el problema del bias. 
-  theta_x_acc = (180/3.14159) * atan2(a.acceleration.y, a.acceleration.z);
+  theta_x_gyro = theta_x_gyro + (180/PI) * g.gyro.x * 0.02; //esta estimación tiene el problema del bias. 
+  theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z); //esta estimación es muy ruidosa.
+  theta_x_gyro_fc = theta_x_fc + (180/PI) * g.gyro.x * 0.02;
+  theta_x_fc = alpha * theta_x_acc + beta * theta_x_gyro_fc;
 
-  float datos[2] = {theta_x_gyro, theta_x_acc};
-  matlab_send(datos, 2);
+  float datos[4] = {theta_x_gyro, theta_x_acc, theta_x_gyro_fc, theta_x_fc};
+  matlab_send(datos, 4);
 
   while (micros() - t_ini < 20000) {}
 }
@@ -54,4 +61,3 @@ void matlab_send(float *datos, size_t largo){
     Serial.write(b,4);
   }
 }
-
