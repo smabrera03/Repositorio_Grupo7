@@ -4,6 +4,10 @@ void setup() {
   Serial.begin(115200); // Inicia la comunicación serial
 }
 
+float mapFloat(float valor, float x_inicial, float x_final, float y_inicial, float y_final){
+  return (y_final - y_inicial)/(x_final - x_inicial) * (valor - x_inicial) + y_inicial;
+}
+
 void loop() {
 
   // Punto 1
