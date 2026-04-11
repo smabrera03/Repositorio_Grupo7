@@ -10,14 +10,27 @@ float mapFloat(float valor, float x_inicial, float x_final, float y_inicial, flo
 
 void loop() {
 
-  // Punto 1
+  // Punto
+  /*int valor = analogRead(A0);
+
+  float angulo = mapFloat((float)valor, 0, 1023, 0, 270); 
+  float tension = 1000 * mapFloat((float)valor, 0, 1023, 0, 5); //Se multiplica por 1000 para ver mejor en el monitor
+  Serial.println(tension);*/
+
   unsigned long t_ini = micros();
 
   int valor = analogRead(A0);
 
-  // Punto 2
-  int angulo = map(valor, 0, 1023, 0, 270); 
-  Serial.println(angulo);
+  unsigned long t_fin = micros();
 
-  while (micros() - t_ini < 20000) {}
+  Serial.println((t_fin - t_ini));
 }
+
+
+/*
+              Mediciones:
+Resolución ángulo: 90/341 ° = 0,264° = 0°15'50,15''
+Resolución tensión: 5/1023 V = 4,89 mV
+Tiempo = 112 +/- 4 us
+Buscar en la hoja de datos del uno
+*/
