@@ -29,8 +29,8 @@ void loop() {
 
 /*
               Mediciones:
-Resolución ángulo: 90/341 ° = 0,264° = 0°15'50,15''
+Resolución ángulo: 270/1023 ° = 0,264° = 0°15'50,15''
 Resolución tensión: 5/1023 V = 4,89 mV
 Tiempo = 112 +/- 4 us
-Buscar en la hoja de datos del uno
+Buscar en la hoja de datos del uno (conversión del ADC)
 */
