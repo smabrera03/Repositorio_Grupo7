@@ -42,7 +42,7 @@ int i = 0;
 void loop() {
   unsigned long t_ini = micros();
 
-  int duty_cycle_servo = (int)mapFloat(angulo_comando, -90, 90, 544, 2400); //544 y 2400 son los valores que acepta writeMicroseconds según la documentación
+  int duty_cycle_servo = (int)mapFloat(angulo_comando, -90, 90, 600, 2400); //544 y 2400 son los valores que acepta writeMicroseconds según la documentación
   miServo.writeMicroseconds(duty_cycle_servo);
 
   //Estimo el ángulo

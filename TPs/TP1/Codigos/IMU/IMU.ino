@@ -27,8 +27,6 @@ void setup() {
 
 }
 
-float theta_x_acc = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es
-
 void loop() {
   unsigned long t_ini = micros();
 
