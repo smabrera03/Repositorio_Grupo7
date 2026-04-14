@@ -53,7 +53,7 @@ void loop() {
 
   theta_x_fc = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;
 
-  float datos[2] = {(float)angulo_comando, theta_x_fc};
+  float datos[2] = {(float)angulo_comando, (180/PI) * theta_x_fc};
   //Envío los datos a matlab
   matlab_send(datos, 2);
 
