@@ -10,12 +10,17 @@ float mapFloat(float valor, float x_inicial, float x_final, float y_inicial, flo
 
 void loop() {
 
-  // Punto
+  // Resolución
+
   /*int valor = analogRead(A0);
 
   float angulo = mapFloat((float)valor, 0, 1023, 0, 270); 
   float tension = 1000 * mapFloat((float)valor, 0, 1023, 0, 5); //Se multiplica por 1000 para ver mejor en el monitor
   Serial.println(tension);*/
+
+  // Tiempo de medición
+
+  delay(3000);
 
   unsigned long t_ini = micros();
 

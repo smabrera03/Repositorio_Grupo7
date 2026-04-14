@@ -26,7 +26,7 @@ void loop() {
   unsigned long delta = t_fin - t_ini;
   float f = 1000000 / delta;
   //Serial.println(f); // Varía en función de la longitud medida
-  Serial.println(med / 29.287); //OBS: Tiene algo de ruido
+  Serial.println(med / (2 * 29.287)); //OBS: Tiene algo de ruido
   // OBSERVACIóN IMPORTANTE: Tiene que haber un delay entre 2 mediciones. Si no, hay errores
 
   t_final = millis(); // Implementar con un while
