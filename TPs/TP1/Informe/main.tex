@@ -330,7 +330,7 @@ Se estimaron y midieron las resoluciones de los actuadores y sensores que se uti
         Servo & 2 | 0,19 & 17 | 1,65$\pm$0,20 & $\mu$s | ° \\
         \noalign{\hrule height 1pt} % Línea más gruesa aquí
     \end{tabular}
-    \caption{Resumen de retardos.}
+    \caption{Resumen de resoluciones.}
     \label{tab:resoluciones}
 \end{table}
 
@@ -349,7 +349,7 @@ Se estimaron y midieron los retardos que añaden los actuadores y sensores, lo q
         Envío de datos & 277,8 & 340,1 & $\mathrm{\mu s}$/\texttt{float} \\
         \noalign{\hrule height 1pt} % Línea más gruesa aquí
     \end{tabular}
-    \caption{Resumen de resoluciones.}
+    \caption{Resumen de retardos.}
     \label{tab:retardos}
 \end{table}
 
@@ -456,7 +456,7 @@ Adafruit_MPU6050 mpu;
 void setup() {
   Serial.begin(115200);
   while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
+    delay(10); 
 
   Serial.println("Adafruit MPU6050 test!");
 
