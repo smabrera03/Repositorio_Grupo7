@@ -198,7 +198,7 @@ Se implementó la función \texttt{mapFloat()} que mapea un conjunto de valores 
 
 donde $x$ es el valor que toma el potenciómetro y $x^*$ es el valor mapeado al conjunto de rango $\{y_\text{mín},\, y_\text{máx}\}$.
 
-Se mapeo el valor $x = 1$ para una salida angular de entre 0° y 270°, obteniendo $\Delta\theta$, y luego para una salida de tensión de entre 0 V y 5 V, obteniendo $\Delta V$ como se muestra a continuación.
+Se mapeó el valor $x = 1$ para una salida angular de entre 0° y 270°, obteniendo $\Delta\theta$, y luego para una salida de tensión de entre 0 V y 5 V, obteniendo $\Delta V$ como se muestra a continuación.
 
 \[
 \Delta\theta = \frac{270\text{°}}{1023} \approx 0,264\text{°}
@@ -226,7 +226,7 @@ Según la hoja de datos del sensor, la máxima resolución en distancia es $\Del
 \Delta t = 2 \frac{\Delta x}{v_\text{sonido}} = 17,48 \, \mathrm{\mu s} ,
 \]
 
-donde a 20 °C la velocidad del senido es de 343,2$\,\mathrm{m/s^2}$.
+donde a 20 °C la velocidad del sonido es de 343,2$\,\mathrm{m/s^2}$.
 
 De este modo, teóricamente, el tiempo que tarda el sensor en medir una distancia de 50 cm es $t_\text{med} = 2,91 \,$ms. Los resultados experimentales arrojaron un valor de $\widehat{t_\text{med}} = 2,93 \,$ms, un valor muy cercano al teórico.
 
@@ -305,7 +305,7 @@ Por último, se calculó el tiempo que toma enviar 100 \texttt{floats} desde el 
     \text{tiempo de envío de un \texttt{float}} = \frac{32}{115\,200} = 277,8\,\mathrm{\mu s}.
 \end{equation}
 
-Asimismo, usando el código que se muestra en el Apéndice \ref{apendice: código tiempo} se midió el tiempo de envío. Cabe aclarar que la función \texttt{Serial.write()} no detiene el código hasta que los datos se envíen a la computadora, sino que los carga en un buffer. Para esperar hasta que los datos se envíen se usa la función \texttt{Seria.flush()}. Además, ya que se usa la función \texttt{micros()}, es necesario enviar varios \texttt{floats}, dado que la misma cuenta con una resolución de \SI{4}{\us}. De esta manera y dividiendo el resultado por la cantidad de datos enviados se puede obtener un resultado más preciso. La medición se muestra en la \autoref{eq:tiempo de envio}.
+Asimismo, usando el código que se muestra en el Apéndice \ref{apendice: código tiempo} se midió el tiempo de envío. Cabe aclarar que la función \texttt{Serial.write()} no detiene el código hasta que los datos se envíen a la computadora, sino que los carga en un \textit{buffer}. Para esperar hasta que los datos se envíen se usa la función \texttt{Seria.flush()}. Además, ya que se usa la función \texttt{micros()}, es necesario enviar varios \texttt{floats}, dado que la misma cuenta con una resolución de \SI{4}{\us}. De esta manera y dividiendo el resultado por la cantidad de datos enviados se puede obtener un resultado más preciso. La medición se muestra en la \autoref{eq:tiempo de envio}.
 
 \begin{equation}
     \text{tiempo estimado de envío de un \texttt{float}} = 340,1\,\mathrm{\mu s}
