@@ -4,9 +4,15 @@
 #include <Wire.h>
 
 #define PERIODO 20000 //período del ciclo en us. En este caso se elige un preíodo grande para que el servo tenga tiempo para estabilizarse
+#define N 100 //Cantidad de ciclos para cambiar el comando
+#define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 
+#define ANGULO_1 0
+#define ANGULO_2 15
 Adafruit_MPU6050 mpu;
 Servo miServo;
+
+float theta_bias = 0;
 
 void setup() {
   miServo.attach(9); // pin PWM
@@ -26,6 +32,16 @@ void setup() {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
+
+  miServo.writeMicroseconds(1500);
+  delay(500);
+
+  sensors_event_t a, g, t;
+  for(int i = 0; i < N_MUESTRAS; i++){ //Se calcula es sesgo como el promedio de (N_MUESTRAS) mediciones
+    mpu.getEvent(&a, &g, &t);
+    theta_bias += (180/PI) * atan2(a.acceleration.y, a.acceleration.z);
+  }
+  theta_bias/=N_MUESTRAS;
 }
 
 
@@ -33,9 +49,9 @@ float theta_x_gyro = 0; //Posición angular estimada por el giroscopio, asumimos
 float theta_x_acc = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es 0
 float theta_x_fc = 0; //Posición angular estimada por el filtro complementario
 
-float alpha = 0.05;
+float alpha = 0.1; //NO TOCAR
 
-float angulo_comando = 0;
+float angulo_comando = ANGULO_1;
 
 int i = 0;
 
@@ -49,7 +65,7 @@ void loop() {
   sensors_event_t a, g, t;
   mpu.getEvent(&a, &g, &t);
   theta_x_gyro = theta_x_fc + (180/PI) * g.gyro.x * PERIODO/1000000; //OBS: ¿Qué pasa si el ciclo tarda más de lo esperado?
-  theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z);
+  theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z) - theta_bias;
 
   theta_x_fc = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;
 
@@ -57,13 +73,13 @@ void loop() {
   //Envío los datos a matlab
   matlab_send(datos, 2);
 
-  i = (i + 1)%50; //Actualizo i.
+  i = (i + 1)%N; //Actualizo i.
 
   if(i == 0){
-    if(angulo_comando == 0){
-      angulo_comando = 30;
+    if(angulo_comando == ANGULO_1){
+      angulo_comando = ANGULO_2;
     }else{
-      angulo_comando = 0;
+      angulo_comando = ANGULO_1;
     }
   } //de esta forma, cada 50 ciclos (1 segundo) cambio el ángulo de comando.
   while(micros() - t_ini < PERIODO){}

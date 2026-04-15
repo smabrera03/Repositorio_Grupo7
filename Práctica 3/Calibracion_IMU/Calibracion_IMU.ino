@@ -4,6 +4,7 @@
 #include <Wire.h>
 
 #define PERIODO 20000 //período del ciclo en us. En este caso se elige un preíodo grande para que el servo tenga tiempo para estabilizarse
+#define N 50 //Cantidad de ciclos para cambiar el comando
 
 Adafruit_MPU6050 mpu;
 Servo miServo;
@@ -33,17 +34,18 @@ float theta_x_gyro = 0; //Posición angular estimada por el giroscopio, asumimos
 float theta_x_acc = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es 0
 float theta_x_fc = 0; //Posición angular estimada por el filtro complementario
 
-float alpha = 0.05;
+float alpha = 0.025;
 
 float angulo_comando = 0;
 
-int i = 0;
 
 void loop() {
   unsigned long t_ini = micros();
 
   int duty_cycle_servo = (int)mapFloat(angulo_comando, -90, 90, 600, 2400); //544 y 2400 son los valores que acepta writeMicroseconds según la documentación
   miServo.writeMicroseconds(duty_cycle_servo);
+  
+  delay(1000);
 
   //Estimo el ángulo
   sensors_event_t a, g, t;
@@ -52,21 +54,8 @@ void loop() {
   theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z);
 
   theta_x_fc = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;
+  
 
-  float datos[2] = {(float)angulo_comando, theta_x_fc};
-  //Envío los datos a matlab
-  matlab_send(datos, 2);
-
-  i = (i + 1)%50; //Actualizo i.
-
-  if(i == 0){
-    if(angulo_comando == 0){
-      angulo_comando = 30;
-    }else{
-      angulo_comando = 0;
-    }
-  } //de esta forma, cada 50 ciclos (1 segundo) cambio el ángulo de comando.
-  while(micros() - t_ini < PERIODO){}
 }
 
 float mapFloat(float valor, float x_inicial, float x_final, float y_inicial, float y_final){
