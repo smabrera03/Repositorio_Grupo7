@@ -3,3 +3,18 @@
 .DS_Store
 .DS_Store
 .DS_Store
+
+
+#ignorar algunos archivos de KiCAD
+# Archivos temporales y de bloqueo
+*.lck
+fp-info-cache
+
+# Backups
+*-backups/
+*.bak
+*.kicad_pcb-bak
+*.kicad_sch-bak
+
+#archivos .history
+.history/
