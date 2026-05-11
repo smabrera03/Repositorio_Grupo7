@@ -1,0 +1,50 @@
+10 de Mayo:
+--> en el filtro complementario, alpha = 0.1. //NO TOCAR
+
+Modelado de la transferencia servo-barra.
+
+La transferencia es de la forma T(s) = k/((s+p1)*(s+p2)). Tiene 3 parámetros
+
+Transferencia modelada con un escalón de 15° (solo inclinación antihoraria): 
+k = 138,9035; 
+p1 = 13,2515 rad/s; 
+p2 = 32,6059 rad/s. 
+
+Ver los datos de la práctica 3
+
+Transferencia modelada con un escalón de +/-15° (inclinación horaria y anti horaria);
+k = 31,5186;
+p1 = 4,0416;
+p2 = 23,5654;
+
+precisión: 91%
+
+Transferencia modelada con un escalón de +/-30°;
+k = 18.0326;
+p1 = -7.1080 + 1.6662i;
+p2 = -7.1080 - 1.6662i;
+
+factor de amortiguamiento = (parte real)/(modulo) = 0.97
+Es casi críticamente amortiguada. 
+
+
+precisión: 95%
+
+¿Cuál es más correcta? ¿Usar otra entrada como el colo y martu?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+11/5: Corregí los coeficientes de la función arx. Además, hice la identificación por cuadrados mínimos como hicimos en clase
+
+k = 18.1106
+p1 = -7.1321 + 1.4668i
+p2 = -7.1321 - 1.4668i
+
+factor de amortiguamiento = (parte real)/(modulo) = 0.97
+Es casi críticamente amortiguada. 
+
+Coeficientes del arx usados: [2 1 2]
+Precisión: 95%. Es básicamente igual al anterior
+
+
+
+

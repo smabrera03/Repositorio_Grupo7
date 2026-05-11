@@ -23,8 +23,6 @@ void setup() {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
-
-
 }
 
 float theta_x_gyro = 0; //Posición angular estimada por el giroscopio, asumimos que inicialmente es
@@ -44,6 +42,7 @@ void loop() {
   theta_x_gyro = theta_x_gyro + (180/PI) * g.gyro.x * 0.02; //esta estimación tiene el problema del bias. 
   theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z); //esta estimación es muy ruidosa.
   theta_x_gyro_fc = theta_x_fc + (180/PI) * g.gyro.x * 0.02;
+  
   theta_x_fc = alpha * theta_x_acc + beta * theta_x_gyro_fc;
 
   float datos[4] = {theta_x_gyro, theta_x_acc, theta_x_gyro_fc, theta_x_fc};
