@@ -40,5 +40,5 @@ float posicion_carrito(unsigned long tiempo){ //Esta función devuelve la posici
   if(medicion < 2){
     medicion = 2; //Para las mediciones menores a 2cm
   }
-  return mapFloat(medicion, 15.5, 32, 0, 17.25);;
+  return mapFloat(medicion, 15.5, 32, 0, 17.25);
 }

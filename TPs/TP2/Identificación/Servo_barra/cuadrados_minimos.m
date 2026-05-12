@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-load('datos_30_grad.mat');
+load('datos_45_grad.mat');
 
 %La ecuación en diferencias es y(n) = -a1 * y(n-1) - a2 * y(n-2) + b * x(n-2)
 
@@ -32,7 +32,3 @@ polos_c = log(polos_d) / Ts;
 k = dcgain(sys_d) * polos_c(1) * polos_c(2);
 
 sys_c = zpk([], polos_c, k);
-
-figure;
-step(sys_c); hold on;
-step(sys_d);

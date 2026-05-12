@@ -33,15 +33,16 @@ precisión: 95%
 ¿Cuál es más correcta? ¿Usar otra entrada como el colo y martu?
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
-11/5: Corregí los coeficientes de la función arx. Además, hice la identificación por cuadrados mínimos como hicimos en clase
+11/5: Corregí los coeficientes de la función arx. Además, hice la identificación por cuadrados mínimos como hicimos en clase 
+y con un escalón de +/-45°, que es lo que usaríamos en la realidad. 
 
-k = 18.1106
-p1 = -7.1321 + 1.4668i
-p2 = -7.1321 - 1.4668i
+k = 11.4345
+p1 = -4.8680 + 3.0753i
+p2 = -4.8680 - 3.0753i
 
-factor de amortiguamiento = (parte real)/(modulo) = 0.97
+factor de amortiguamiento = (parte real)/(modulo) = 0.8454
 Es casi críticamente amortiguada. 
-
+Si bien son complejos conjugados, el overshoot es prácticamente 0%
 Coeficientes del arx usados: [2 1 2]
 Precisión: 95%. Es básicamente igual al anterior
 
@@ -73,12 +74,14 @@ La planta es:
 
 P(s) = ANGULO_SERVO(s) / POSICION_CARRO(s) = NUM(s) / DEN(s)
 
-donde NUM(s)	= g * k = 9.807 * 18.1106 = 177.6107
+donde NUM(s)	= g * k = 9.807 * 11.4345 = 112.1341
 DEN(s) 		= s * (s + b/m) * (s - p1) * (s - p2)
 
+k = 11.4345
+g = 9.807
 con b = 1.405, m = 0.033 kg
-p1 = -7.1321 + 1.4668i
-p2 = -7.1321 - 1.4668i
+p1 = -4.8680 + 3.0753i
+p2 = -4.8680 - 3.0753i
 
 	
 
