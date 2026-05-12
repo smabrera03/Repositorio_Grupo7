@@ -1,6 +1,28 @@
 clc; clear; close all;
 
 load('barra_carro_20grad_1.mat');
+y1 = y;
+u1 = u;
+load('barra_carro_20grad_2.mat');
+y2 = y;
+u2 = u;
+load('barra_carro_20grad_3.mat');
+y3 = y;
+u3 = u;
+load('barra_carro_20grad_4.mat');
+y4 = y;
+u4 = u;
+load('barra_carro_20grad_5.mat');
+y5 = y;
+u5 = u;
+N = min([length(y1), length(y2), length(y3), length(y4), length(y5)]); 
+y_prom = (y1(1:N) + y2(1:N) + y3(1:N) + y4(1:N) + y5(1:N))/5;
+u_prom = (u1(1:N) + u2(1:N) + u3(1:N) + u4(1:N) + u5(1:N))/5;
+
+y = y_prom;
+u = u_prom;
+
+t = t(1:N);
 
 %{
 La planta discreta que estoy modelando es 
@@ -10,8 +32,6 @@ La ecuación en diferencias es y(n) = -a1 * y(n-1) - a2 * y(n-2) + k * x(n-2)
 con la restricción a1 + a2 = -1
 a2 = p
 %}
- 
-y = y/100; %paso a metros
 N = length(y);
 X = [-y(2:N-1), -y(1:N-2), u(1:N-2)];
 

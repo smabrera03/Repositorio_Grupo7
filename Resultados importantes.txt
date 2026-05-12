@@ -83,6 +83,11 @@ con b = 1.405, m = 0.033 kg
 p1 = -4.8680 + 3.0753i
 p2 = -4.8680 - 3.0753i
 
+OJO con las unidades. g está en m/s^, pero la posición la estoy midiendo en cm
+
+Bueno simulé la salida según esta transferencia y da cualquier cosa.
+Tanteando encontré que b = 0.1 anda bien. lpm
+
 	
 
 
