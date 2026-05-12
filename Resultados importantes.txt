@@ -45,6 +45,45 @@ Es casi críticamente amortiguada.
 Coeficientes del arx usados: [2 1 2]
 Precisión: 95%. Es básicamente igual al anterior
 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+12/5: Transferencia barra-Carro
+Le di un escalón de 20° y medí la posición del carro. Todos los datos a partir de la caída del carro los descarté.
+
+¿Qué tanta varianza tiene esta medición?
+Archivo 	b(CM)	CM_restringidos
+1		0.7440	1.2171
+2		1.0783	1.2532
+3		1.3660	1.4537
+4		1.0768	1.3469
+5		1.8592	1.9826
+
+arhivo	1	2	3	4	5
+b(CM) 	0.7440	1.0783	1.3660	1.0768	1.8592
+b(CMR)	1.2171	1.2532	1.4527	1.3469	1.9826
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Resultado final: usar el promedio del b(CMR), que es la medición más correcta
+
+b = 1.4505, lo que da un polo en p = 43.9545
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+La planta es:
+
+P(s) = ANGULO_SERVO(s) / POSICION_CARRO(s) = NUM(s) / DEN(s)
+
+donde NUM(s)	= g * k = 9.807 * 18.1106 = 177.6107
+DEN(s) 		= s * (s + b/m) * (s - p1) * (s - p2)
+
+con b = 1.405, m = 0.033 kg
+p1 = -7.1321 + 1.4668i
+p2 = -7.1321 - 1.4668i
+
+	
+
+
+
 
 
 

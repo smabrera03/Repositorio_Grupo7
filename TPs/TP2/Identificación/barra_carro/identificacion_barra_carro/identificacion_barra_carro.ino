@@ -5,7 +5,7 @@
 
 #define TRIGGER_PIN  6   // Pin de arduino conectado al pin del trigger
 #define ECHO_PIN     7   // Pin de arduino conectado al pin del echo
-#define MAX_DISTANCE 50 // Distancia máxima en centímetros
+#define MAX_DISTANCE 35 // Distancia máxima en centímetros
 #define PERIODO 20000 //Período en us
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
@@ -15,9 +15,12 @@ Servo miServo;
 Adafruit_MPU6050 mpu;
 float theta_bias = 0;
 
+#define ANGULO_1 0
+#define ANGULO_2 -20
+
 void setup() {
   miServo.attach(9); // pin PWM
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   if (!mpu.begin()) {
     Serial.println("IMU no encontrada");
@@ -46,31 +49,38 @@ float theta_x_gyro_fc = 0;
 
 float alfa = 0.1;
 
+float angulo_comando = ANGULO_1;
+
+size_t contador = 0;
+#define N 200 //ciclos que tienen que pasar antes de que la barra se incline.
+#define N2 400 //ciclos para que la barra vuelva a la posición horizontal
+
 void loop() {
   unsigned long t_ini = micros();
 
   //Sensor ultrasónico
-  float med = (C/2) * sonar.ping(MAX_DISTANCE); //medición en cm
-  Serial.println(med);
-
-
-  //Servomotor
-  int angulo = 0;
-  int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
-  miServo.writeMicroseconds(duty_cycle_servo);
+  float posicion = posicion_carrito();
 
   //IMU
   sensors_event_t a, g, t;
   mpu.getEvent(&a, &g, &t);
-  
-
   theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z) - theta_bias;
   theta_x_gyro_fc = theta_x_fc + (180/PI) * g.gyro.x * (PERIODO/1000000);
-  
   theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
-  float datos[3] = {theta_x_acc, theta_x_gyro_fc, theta_x_fc};
-  matlab_send(datos, 3};
+  //Servomotor
+  int duty_cycle_servo = (int)mapFloat(angulo_comando, -90, 90, 600, 2400);
+  miServo.writeMicroseconds(duty_cycle_servo);
+
+  if(contador == N){
+    angulo_comando = ANGULO_2;
+  } else if(contador == N2){
+    angulo_comando = ANGULO_1;
+  }
+  contador++;
+
+  float datos[2] = {theta_x_fc, posicion};
+  matlab_send(datos, 2);
 
   while (micros() - t_ini < PERIODO) {}
 }
@@ -86,6 +96,18 @@ void matlab_send(float *datos, size_t largo){
     byte * b = (byte *) &datos[i];
     Serial.write(b,4);
   }
+}
+
+float posicion_carrito(void){ //Esta función devuelve la posición del carro en nuestro sistema de referencia
+  unsigned long tiempo = sonar.ping(MAX_DISTANCE);
+  float medicion = (C/2) * tiempo; 
+  if(tiempo == 0){ //Se excedió el tiempo máximo, el carrito se cayó de la barra
+    medicion = 15.5; //Quiero que cuando el carrito se caiga, el sensor lo detecte en 0.
+  }
+  if(medicion < 2){
+    medicion = 2; //Para las mediciones menores a 2cm
+  }
+  return mapFloat(medicion, 15.5, 32, 0, 17.25);;
 }
 
 
