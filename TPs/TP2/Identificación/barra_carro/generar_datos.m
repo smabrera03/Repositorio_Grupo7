@@ -16,5 +16,5 @@ y = y(1:idx_caida);
 t = t(1:idx_caida);
 
 
-save('barra_carro_-20grad_1.mat', 'u', 'y', 't'); %para volcar los datos en un archivo
+save('barra_carro_20grad_1.mat', 'u', 'y', 't'); %para volcar los datos en un archivo
 %Para recuperar: load('datos_sin_carrito.mat');

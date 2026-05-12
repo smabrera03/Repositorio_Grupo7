@@ -1,7 +1,17 @@
 clc; clear; close all;
 
-load('barra_carro_-20grad_1.mat');
+load('barra_carro_20grad_1.mat');
 
+%{
+La planta discreta que estoy modelando es 
+Pd = k/((z-1) * (z + p)) = Y(z)/X(z=
+
+La ecuación en diferencias es y(n) = -a1 * y(n-1) - a2 * y(n-2) + k * x(n-2)
+con la restricción a1 + a2 = -1
+a2 = p
+%}
+ 
+y = y/100; %paso a metros
 N = length(y);
 X = [-y(2:N-1), -y(1:N-2), u(1:N-2)];
 
