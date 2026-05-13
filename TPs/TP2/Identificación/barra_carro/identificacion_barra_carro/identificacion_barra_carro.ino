@@ -16,7 +16,7 @@ Adafruit_MPU6050 mpu;
 float theta_bias = 0;
 
 #define ANGULO_1 0
-#define ANGULO_2 -20
+#define ANGULO_2 20
 
 void setup() {
   miServo.attach(9); // pin PWM

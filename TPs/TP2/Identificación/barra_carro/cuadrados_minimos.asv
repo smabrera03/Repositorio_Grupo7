@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-load('barra_carro_20grad_1.');
+load('barra_carro_30grad_1.');
 
 %{
 Planta continua = g/(s * (s +  b/m)), donde b es el coeficiente de
@@ -11,7 +11,7 @@ kz^-2/(1 + (p -1) * z^-1 - p * z^-2)
 
 La ecuación en diferencias es y(n) = afla1 * y(n-1) + alfa2 * y(n-2) + alfa3 * u(n-2)
 Además sabemos que alfa1 = 1 - p, alfa2 = p, 
-Luego b/m = - 1/Ts * ln(p)
+Luego b/m = 1/Ts * ln(p)
 %}
 N = length(y);
 Y = y(3:N);
@@ -19,7 +19,7 @@ Y = y(3:N);
 %salida
 X = [y(2:N-1), y(1:N-2), u(1:N-2)];
 
-theta = X \ Y; %el operador / resuelve cuadrados mínimos.
+theta = X \ Y; %el operador %resuelve cuadrados mínimos.
 
 % Parámetros estimados
 alfa1 = theta(1);

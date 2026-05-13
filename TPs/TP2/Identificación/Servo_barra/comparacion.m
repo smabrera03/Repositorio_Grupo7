@@ -1,14 +1,9 @@
-clear; close all;
-load('barra_carro_20grad_1.mat');
+clear;
+p =   -4.8680 + 3.0753i;
+k = 11.4345;
+P = zpk([], [p conj(p)], k);
 
-Ts = 0.02;
-
-p = 43.9545;
-g = 9.807; %OJO: está en m/s^2
-
-s = tf('s');
-P = 100*g * pi/180 * 1/(s * (s + p)); %cm/°
-
+load('datos_45_grad.mat');
 
 y_est = lsim(P, u, t);
 
@@ -27,3 +22,5 @@ error = y - y_est;
 rmse = sqrt(mean(error.^2));
 rmse_y = sqrt(mean(y.^2));
 fit = (1 - rmse/rmse_y) * 100
+
+%Está comparación sí da bien, por lo que el método tiene sentido
