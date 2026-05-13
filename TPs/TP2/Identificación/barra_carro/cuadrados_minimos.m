@@ -1,28 +1,7 @@
 clc; clear; close all;
 
 load('barra_carro_20grad_1.mat');
-y1 = y;
-u1 = u;
-load('barra_carro_20grad_2.mat');
-y2 = y;
-u2 = u;
-load('barra_carro_20grad_3.mat');
-y3 = y;
-u3 = u;
-load('barra_carro_20grad_4.mat');
-y4 = y;
-u4 = u;
-load('barra_carro_20grad_5.mat');
-y5 = y;
-u5 = u;
-N = min([length(y1), length(y2), length(y3), length(y4), length(y5)]); 
-y_prom = (y1(1:N) + y2(1:N) + y3(1:N) + y4(1:N) + y5(1:N))/5;
-u_prom = (u1(1:N) + u2(1:N) + u3(1:N) + u4(1:N) + u5(1:N))/5;
 
-y = y_prom;
-u = u_prom;
-
-t = t(1:N);
 %{
 Planta continua = g/(s * (s +  b/m)), donde b es el coeficiente de
 viscocidad
@@ -51,6 +30,6 @@ k  = theta(3);
 Ts = 0.02;
 
 m = 33e-3;
-p_discreto = -a2;
+p_discreto = -a2
 p_continuo = 1/Ts * log(p_discreto); % = -b/m
-b = -m * p_continuo
+b = -m * p_continuo;

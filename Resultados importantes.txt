@@ -72,14 +72,14 @@ b = 1.4505, lo que da un polo en p = 43.9545
 --------------------------------------------------------------------------------------
 La planta es:
 
-P(s) = ANGULO_SERVO(s) / POSICION_CARRO(s) = NUM(s) / DEN(s)
+P(s) = POSICION_CARRO(s) / ANGULO_SERVO(s) = NUM(s) / DEN(s)
 
 donde NUM(s)	= g * k = 9.807 * 11.4345 = 112.1341
 DEN(s) 		= s * (s + b/m) * (s - p1) * (s - p2)
 
 k = 11.4345
 g = 9.807
-con b = 1.405, m = 0.033 kg
+con b = 1.4505, m = 0.033 kg
 p1 = -4.8680 + 3.0753i
 p2 = -4.8680 - 3.0753i
 
