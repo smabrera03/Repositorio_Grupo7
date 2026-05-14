@@ -34,10 +34,9 @@ float mapFloat(float valor, float x_inicial, float x_final, float y_inicial, flo
 float posicion_carrito(unsigned long tiempo){ //Esta función devuelve la posición del carro en nuestro sistema de referencia
   //unsigned long tiempo = sonar.ping(MAX_DISTANCE); //NO se pueden hacer 2 mediciones seguidas
   float medicion = (C/2) * tiempo; 
-  if(tiempo == 0){ //Se excedió el tiempo máximo, el carrito se cayó de la barra
+  if(tiempo == 0){ //Se excedió el tiempo máximo, el carrito se cayó de la barra o está pegado al sensor
     medicion = 15.5; //Quiero que cuando el carrito se caiga, el sensor lo detecte en 0.
-  }
-  if(medicion < 2){
+  } else if(medicion < 2){
     medicion = 2; //Para las mediciones menores a 2cm
   }
   return mapFloat(medicion, 15.5, 32, 0, 17.25);

@@ -5,10 +5,11 @@
 
 #define TRIGGER_PIN  6   // Pin de arduino conectado al pin del trigger
 #define ECHO_PIN     7   // Pin de arduino conectado al pin del echo
-#define MAX_DISTANCE 50 // Distancia máxima en centímetros
+#define MAX_DISTANCE 40 // Distancia máxima en centímetros
 #define PERIODO 20000 //Período en us
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
+#define X_REF 0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -53,10 +54,20 @@ void loop() {
   unsigned long t_ini = micros();
 
   //Sensor ultrasónico
-  float posicion = posicion_carrito(); //medición en cm  
+  float posicion = posicion_carrito();
+
+  //IMU
+  sensors_event_t a, g, t;
+  mpu.getEvent(&a, &g, &t);
+  
+  theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z) - theta_bias;
+  theta_x_gyro_fc = theta_x_fc + (180/PI) * g.gyro.x * (PERIODO/1000000);
+  
+  theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
   //Servomotor
-  int angulo = 0;
+  float kp = 3.5;
+  float angulo = kp * (X_REF - posicion);
   if(angulo < ANGULO_SERVO_MIN){
     angulo = ANGULO_SERVO_MIN;
   } else if(angulo > ANGULO_SERVO_MAX){
@@ -65,18 +76,8 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  //IMU
-  sensors_event_t a, g, t;
-  mpu.getEvent(&a, &g, &t);
-  
-
-  theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z) - theta_bias;
-  theta_x_gyro_fc = theta_x_fc + (180/PI) * g.gyro.x * (PERIODO/1000000);
-  
-  theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
-
-  float datos[3] = {theta_x_acc, theta_x_gyro_fc, theta_x_fc};
-  matlab_send(datos, 3};
+  float datos[3] = {posicion, angulo, theta_x_fc};
+  matlab_send(datos, 3);
 
   while (micros() - t_ini < PERIODO) {}
 }
@@ -93,6 +94,7 @@ void matlab_send(float *datos, size_t largo){
     Serial.write(b,4);
   }
 }
+
 
 float posicion_carrito(){ //Esta función devuelve la posición del carro en nuestro sistema de referencia
   unsigned long tiempo = sonar.ping(MAX_DISTANCE); //NO se pueden hacer 2 mediciones seguidas

@@ -88,6 +88,18 @@ OJO con las unidades. g está en m/s^, pero la posición la estoy midiendo en cm
 Bueno simulé la salida según esta transferencia y da cualquier cosa.
 Tanteando encontré que b = 0.1 anda bien. lpm
 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+
+14/5: Resultado final de la transferencia ángulo-posición (puro ojímetro)
+
+donde NUM(s)	= 100 * 180/pi * g 
+DEN(s) 		= s * (s + p)
+
+donde p = 3.
+
+
+
 	
 
 

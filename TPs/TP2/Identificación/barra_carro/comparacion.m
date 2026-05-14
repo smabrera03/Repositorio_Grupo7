@@ -1,13 +1,17 @@
 clear; close all;
-load('barra_carro_20grad_1.mat');
+load('promedio_mediciones.mat');
 
 Ts = 0.02;
 
-p = 43.9545;
+y = y-mean(y(1:201));
+
+pc = 3; %entre 3 2.7
 g = 9.807; %OJO: está en m/s^2
+kc =  20;
+kc_calc = 100 * pi/180 * g;
 
 s = tf('s');
-P = 100*g * pi/180 * 1/(s * (s + p)); %cm/°
+P = kc_calc * 1/(s * (s + pc)); %cm/°
 
 
 y_est = lsim(P, u, t);
