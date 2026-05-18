@@ -107,8 +107,8 @@ float posicion_carrito(void){ //Esta función devuelve la posición del carro en
   if(medicion < 2){
     medicion = 2; //Para las mediciones menores a 2cm
   }
-  return mapFloat(medicion, 15.5, 32, 0, 17.25);;
-}
+  return mapFloat(medicion, 15.5, 32, 0, 17.25);; //15.5 y 32 obtenidos experimentalmente (se corresponden con 16.25 y 33.5)
+}                                                 //Valores menores a 15.5 devuleven numeros negativos (ver mapFloat)
 
 
 
