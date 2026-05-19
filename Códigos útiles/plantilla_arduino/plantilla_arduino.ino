@@ -10,6 +10,9 @@
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
 
+#define ANGULO_SERVO_MAX 58.55
+#define ANGULO_SERVO_MIN -46.84
+
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // Setup
 Servo miServo;
 Adafruit_MPU6050 mpu;
@@ -17,7 +20,7 @@ float theta_bias = 0;
 
 void setup() {
   miServo.attach(9); // pin PWM
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   if (!mpu.begin()) {
     Serial.println("IMU no encontrada");
@@ -50,12 +53,15 @@ void loop() {
   unsigned long t_ini = micros();
 
   //Sensor ultrasónico
-  float med = (C/2) * sonar.ping(MAX_DISTANCE); //medición en cm
-  Serial.println(med);
-
+  float posicion = posicion_carrito(); //medición en cm  
 
   //Servomotor
   int angulo = 0;
+  if(angulo < ANGULO_SERVO_MIN){
+    angulo = ANGULO_SERVO_MIN;
+  } else if(angulo > ANGULO_SERVO_MAX){
+    angulo = ANGULO_SERVO_MAX;
+  }
   int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
@@ -86,5 +92,16 @@ void matlab_send(float *datos, size_t largo){
     byte * b = (byte *) &datos[i];
     Serial.write(b,4);
   }
+}
+
+float posicion_carrito(){ //Esta función devuelve la posición del carro en nuestro sistema de referencia
+  unsigned long tiempo = sonar.ping(MAX_DISTANCE); //NO se pueden hacer 2 mediciones seguidas
+  float medicion = (C/2) * tiempo; 
+  if(tiempo == 0){ //Se excedió el tiempo máximo, el carrito se cayó de la barra o está pegado al sensor
+    medicion = 15.5; //Quiero que cuando el carrito se caiga, el sensor lo detecte en 0.
+  } else if(medicion < 2){
+    medicion = 2; //Para las mediciones menores a 2cm
+  }
+  return mapFloat(medicion, 15.5, 32, 0, 17.25);
 }
 
