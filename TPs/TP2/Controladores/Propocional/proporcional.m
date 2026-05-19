@@ -26,8 +26,8 @@ grid on;
 
 kp = 0.7; %Probar valores entre 0.3 y 0.7
 
-C = kp;
-Cd = c2d(C, 'tustin', Ts);
+C = tf(kp);
+Cd = c2d(C, Ts, 'Tustin');
 L = minreal(P * C);
 T = minreal(L/(1 + L));
 

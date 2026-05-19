@@ -10,6 +10,7 @@
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
 #define X_REF 0
+#define TS 0.02
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -50,6 +51,15 @@ float theta_x_gyro_fc = 0;
 
 float alfa = 0.1;
 
+float kp = 3.5;
+float ki = 0;
+
+float error[2] = {0, 0}; //Vector de errores
+//Nota importante: error[0] es e(n) (el error actual), y error[1] = e(n - 1) (el error anterior)
+
+float integral[2] = {0, 0}; //Vector de integrales
+//De la misma forma, integral[0] = I(n), integral[1] = I(n - 1)
+
 void loop() {
   unsigned long t_ini = micros();
 
@@ -66,8 +76,16 @@ void loop() {
   theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
   //Servomotor
-  float kp = 3.5;
-  float angulo = kp * (X_REF - posicion);
+  
+  //actualizo error
+  error[1] = error[0];
+  error[0] = X_REF - posicion;
+
+  //actualizo integral
+  integral[1] = integral[0];
+  integral[0] = (TS/2) * (error[0] - error[1]) + integral[1];
+
+  float angulo = kp * error[0] + ki * integral[0];
   if(angulo < ANGULO_SERVO_MIN){
     angulo = ANGULO_SERVO_MIN;
   } else if(angulo > ANGULO_SERVO_MAX){
