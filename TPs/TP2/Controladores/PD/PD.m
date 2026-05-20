@@ -8,31 +8,32 @@ p2 = -4.8680 + 3.0753i;
 
 P = zpk([], [0 p1 p2 conj(p2)], k);
 
-figure;
-rlocus(P); %Vemos que k < 2.17
-
 Ts = 0.02;
 pade = zpk([4/Ts], [-4/Ts], -1);
 
 opt = bodeoptions;
 
+opt.Grid = 'On';
 opt.PhaseMatching = 'On';
 opt.PhaseMatchingValue = -90;
 opt.PhaseMatchingFreq = 0.1;
 
 figure;
-bode(1 * P, opt); 
+%bode(1 * P * pade, opt); 
 grid on;
 
-kp = 0.7; %Probar valores entre 0.3 y 0.7
+kp = 1; %Queda fijo
+kd = 1/3; %entre 0.1 y 0.5
 
-C = tf(kp);
-Cd = c2d(C, Ts, 'Tustin');
+s = tf('s');
+
+C = kp + kd * s; %C = kp * (s + kp/kd)
+Cd = c2d(C, Ts, 'tustin');
 L = minreal(P * C);
 T = minreal(L/(1 + L));
 
 figure;
-step(T); grid on;
+bode(L, opt);
 
 sys_ss = ss(P);
 [Ass, Bss, Css, Dss] = ssdata(sys_ss);

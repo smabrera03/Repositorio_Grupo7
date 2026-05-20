@@ -1,7 +1,8 @@
 p1 = -13.2515;
 p2 = -32.6059;
 k = 138.9035;
-
+%Nota: volvimos a modelar la planta y ahora tenemos otros polos. De todos
+%modos, sabemos que anda así que no lo cambiamos
 Ass = [0 1;
            -p1*p2 p1+p2];
        

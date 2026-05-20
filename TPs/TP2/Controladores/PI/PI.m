@@ -13,26 +13,27 @@ pade = zpk([4/Ts], [-4/Ts], -1);
 
 opt = bodeoptions;
 
+opt.Grid = 'On';
 opt.PhaseMatching = 'On';
 opt.PhaseMatchingValue = -90;
 opt.PhaseMatchingFreq = 0.1;
 
 figure;
-bode(1 * P * pade, opt); 
+%bode(1 * P * pade, opt); 
 grid on;
 
-kp = 1; %Probar valores entre 0.3 y 0.7
-ki = 1;
+kp = 1; %Queda fijo
+ki = 1/3; %entre 0.1 y 0.5
 
 s = tf('s');
 
-C = kp + ki/s;
+C = kp + ki/s; %C = kp * (s + ki/kp)/s
 Cd = c2d(C, Ts, 'tustin');
 L = minreal(P * C);
 T = minreal(L/(1 + L));
 
 figure;
-step(T); grid on;
+bode(L, opt);
 
 sys_ss = ss(P);
 [Ass, Bss, Css, Dss] = ssdata(sys_ss);

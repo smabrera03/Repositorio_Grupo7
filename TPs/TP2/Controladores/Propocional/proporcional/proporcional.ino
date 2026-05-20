@@ -50,6 +50,10 @@ float theta_x_gyro_fc = 0;
 
 float alfa = 0.1;
 
+
+float kp = 3.5;
+
+
 void loop() {
   unsigned long t_ini = micros();
 
@@ -66,7 +70,6 @@ void loop() {
   theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
   //Servomotor
-  float kp = 3.5;
   float angulo = kp * (X_REF - posicion);
   if(angulo < ANGULO_SERVO_MIN){
     angulo = ANGULO_SERVO_MIN;
@@ -76,8 +79,8 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  float datos[3] = {posicion, angulo, theta_x_fc};
-  matlab_send(datos, 3);
+  float datos[2] = {posicion, angulo};
+  matlab_send(datos, 2);
 
   while (micros() - t_ini < PERIODO) {}
 }
