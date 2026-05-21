@@ -7,8 +7,12 @@ y = y-mean(y(1:201));
 
 pc = 3; %entre 3 2.7
 g = 9.807; %OJO: está en m/s^2
-kc =  20;
 kc_calc = 100 * pi/180 * g;
+
+%21/5 como la identificación no da, modifiqué pc y kc_calc
+
+pc = 10;
+kc_calc  = 100 * pi/180 * g * 2.1;
 
 s = tf('s');
 P = kc_calc * 1/(s * (s + pc)); %cm/°

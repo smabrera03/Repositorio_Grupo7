@@ -10,6 +10,7 @@
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
 #define X_REF 0.0
+#define ESC 0.0
 #define TS 0.02
 
 #define ANGULO_SERVO_MAX 58.55
@@ -51,14 +52,17 @@ float theta_x_gyro_fc = 0;
 
 float alfa = 0.1;
 
-float kp = 3.5;
-float kd = 0.0025;
+float kp = 2.5;
+float kd = 0.01;
 
 float error[2] = {0, 0};//Vector de errores
 //Nota importante: error[0] es e(n) (el error actual), y error[1] = e(n - 1) (el error anterior)
 
 float derivada[2] = {0, 0};
 //Idem
+
+int n_ciclos = 0;
+float x_ref = X_REF;
 
 void loop() {
   unsigned long t_ini = micros();
@@ -76,14 +80,17 @@ void loop() {
   theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
   //Servomotor
-  
+  if (n_ciclos == 250) {
+    x_ref = X_REF + ESC;
+  }
   //actualizo error
   error[1] = error[0];
-  error[0] = X_REF - posicion;
+  error[0] = x_ref - posicion;
 
   //Actualizo la derivada
   derivada[1] = derivada[0];
   derivada[0] = (2.0/TS) * (error[0] - error[1]) - derivada[1];
+
 
   float angulo = kp * error[0] + kd * derivada[0];
 
@@ -95,8 +102,10 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  float datos[4] = {posicion, angulo, error[0], kd * derivada[0]};
-  matlab_send(datos, 4);
+  float datos[5] = {posicion, x_ref, angulo, error[0], kd * derivada[0]};
+  matlab_send(datos, 5);
+
+  n_ciclos++;
 
   while (micros() - t_ini < PERIODO) {}
 }

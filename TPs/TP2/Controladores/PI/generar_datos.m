@@ -5,5 +5,5 @@ angulo_servo = double(out.angulo);
 t = double(out.tout);
 
 
-save('escalon_v1', 'posicion', 'x_ref', 'angulo_servo',  't'); %para volcar los datos en un archivo
+save('escalon_PI_v1', 'posicion', 'x_ref', 'angulo_servo',  't'); %para volcar los datos en un archivo
 %Para recuperar: load('datos_sin_carrito.mat');

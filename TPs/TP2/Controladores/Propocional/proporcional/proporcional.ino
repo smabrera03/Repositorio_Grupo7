@@ -9,7 +9,8 @@
 #define PERIODO 20000 //Período en us
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
-#define X_REF 0
+#define X_REF 0.0
+#define ESC 10.0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -53,6 +54,9 @@ float alfa = 0.1;
 
 float kp = 3.5;
 
+int n_ciclos = 0;
+
+float x_ref = X_REF;
 
 void loop() {
   unsigned long t_ini = micros();
@@ -70,7 +74,11 @@ void loop() {
   theta_x_fc = alfa * theta_x_acc + (1 - alfa) * theta_x_gyro_fc;
 
   //Servomotor
-  float angulo = kp * (X_REF - posicion);
+  if (n_ciclos == 250) {
+    x_ref = X_REF + ESC;
+  }
+
+  float angulo = kp * (x_ref - posicion);
   if(angulo < ANGULO_SERVO_MIN){
     angulo = ANGULO_SERVO_MIN;
   } else if(angulo > ANGULO_SERVO_MAX){
@@ -79,8 +87,10 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  float datos[2] = {posicion, angulo};
-  matlab_send(datos, 2);
+  float datos[3] = {posicion, x_ref, angulo};
+  matlab_send(datos, 3);
+
+  n_ciclos++;
 
   while (micros() - t_ini < PERIODO) {}
 }
