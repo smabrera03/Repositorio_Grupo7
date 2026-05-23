@@ -13,10 +13,12 @@ plot(t, y_est, 'r--', 'LineWidth', 1.5);
 
 grid on;
 xlabel('Tiempo [s]');
-ylabel('Salida');
+xlim([10, 30]);
+ylabel('Salida [°]');
 
 legend('Medición real', 'Modelo');
-title('Comparación medición vs modelo');
+title('Sistema real y modelado');
+exportgraphics(gcf, 'Comparacion salidas(servo-barra).png', 'Resolution', 300);
 
 error = y - y_est;
 rmse = sqrt(mean(error.^2));

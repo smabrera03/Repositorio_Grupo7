@@ -1,0 +1,24 @@
+clear; close all;
+p1 =   -4.8680 + 3.0753i;
+p2 = conj(p1);
+k1 = 11.4345;
+p3 =  -10;
+g = 9.807;
+k2  = 100 * pi/180 * g * 2.1;
+
+P = zpk([], [0, p1, p2, p3], k1*k2);
+
+opt = bodeoptions;
+opt.PhaseMatching = 'On';
+opt.PhaseMatchingValue = -90;
+opt.PhaseMatchingFreq = 0.1;
+
+figure;
+[Gm,Pm,Wcg,Wcp] = margin(P); %OJO: Gm está en veces, no en dB
+Gm = 20 * log10(Gm);
+margin(P, opt);
+titulo = sprintf('Diagrama de Bode. \n Margen de ganancia %.2f dB en %.2f rad/s || Margen de fase %.1f ° en %.2f rad/s', Gm, Wcg, Pm, Wcp);
+title(titulo);
+grid on;
+
+exportgraphics(gcf, 'Bode de la planta.png', 'Resolution', 300);

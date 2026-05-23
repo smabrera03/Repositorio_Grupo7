@@ -27,12 +27,12 @@ plot(t, y_est, 'r--', 'LineWidth', 1.5);
 grid on;
 xlim([3.5, 5]);
 xlabel('Tiempo [s]');
-ylabel('Salida');
+ylabel('Salida [cm]');
 
 legend('Medición real', 'Modelo');
-title('Comparación medición vs modelo');
+title('Sistema real y modelado');
 
-exportgraphics(gcf, 'Comparacion_modelado-real.png', 'Resolution', 300);
+exportgraphics(gcf, 'Comparacion sistemas (barra-carro).png', 'Resolution', 300);
 
 error = y - y_est;
 rmse = sqrt(mean(error.^2));
