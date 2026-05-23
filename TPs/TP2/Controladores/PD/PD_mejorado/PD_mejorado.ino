@@ -12,6 +12,8 @@
 #define X_REF 0.0
 #define ESC 0.0
 #define TS 0.02
+#define UMBRAL_INF 0.3 //Umbral para considerar un error como significativo o no
+#define UMBRAL_SUP 15
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -53,7 +55,8 @@ float theta_x_gyro_fc = 0;
 float alfa = 0.1;
 
 float kp = 2.5;
-float kd = 0.01;
+float kd = 0.1;
+
 
 float error[2] = {0, 0};//Vector de errores
 //Nota importante: error[0] es e(n) (el error actual), y error[1] = e(n - 1) (el error anterior)
@@ -88,8 +91,23 @@ void loop() {
   error[0] = x_ref - posicion;
 
   //Actualizo la derivada
-  derivada[1] = derivada[0];
-  derivada[0] = (2.0/TS) * (error[0] - error[1]) - derivada[0];
+  float delta_error = 0;
+  if(error[0] > error[1]){
+    delta_error = error[0] - error[1];
+  }else {
+    delta_error = error[1] - error[0];
+  }
+
+  if(delta_error < UMBRAL_INF){
+    derivada[1] = derivada[0];
+    derivada[0] = 0;
+  } else if(delta_error > UMBRAL_SUP){
+    derivada[1] = derivada[0];
+  } else {
+    derivada[1] = derivada[0];
+    derivada[0] = (2.0/TS) * (error[0] - error[1]) - (0.01) * derivada[1];
+  }
+
 
   float angulo = kp * error[0] + kd * derivada[0];
 

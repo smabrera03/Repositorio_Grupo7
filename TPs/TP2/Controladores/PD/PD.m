@@ -19,11 +19,11 @@ opt.PhaseMatchingValue = -90;
 opt.PhaseMatchingFreq = 0.1;
 
 kp = 3.5; %Queda fijo
-kd = 0.0025; %entre 0.1 y 0.5
+kd = 0.5; %entre 0.1 y 0.5
 
 s = tf('s');
 
-C = kp + kd * s; %C = kp * (s + kp/kd)
+C = kp + kd * s; %C = kd * (s + kp/kd)
 Cd = c2d(C, Ts, 'tustin');
 L = minreal(P * C);
 T = minreal(L/(1 + L));

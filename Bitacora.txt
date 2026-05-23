@@ -123,6 +123,17 @@ NUEVO PI:
 kp = 2
 ki = 0.9
 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+23/5: Agregué límites a la estimación de la derivada. Ver PD_mejorado
+
+Nuevo PD: 
+
+kp = 2.5
+kd = 0.1. Se puede hacer más grande, pero satura la acción de control
+
+
+
 
 
 
