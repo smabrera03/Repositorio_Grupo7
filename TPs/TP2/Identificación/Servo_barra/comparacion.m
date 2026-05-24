@@ -18,7 +18,7 @@ ylabel('Salida [°]');
 
 legend('Medición real', 'Modelo');
 title('Sistema real y modelado');
-exportgraphics(gcf, 'Comparacion salidas(servo-barra).png', 'Resolution', 300);
+%exportgraphics(gcf, 'Comparacion salidas(servo-barra).png', 'Resolution', 300);
 
 error = y - y_est;
 rmse = sqrt(mean(error.^2));

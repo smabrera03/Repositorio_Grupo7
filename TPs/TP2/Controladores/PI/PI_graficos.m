@@ -7,9 +7,6 @@ k = k1 * k2;
 p1 = -10;
 p2 = -4.8680 + 3.0753i;
 
-a = -1/8; %ganancia para ajustar los datos al impulso unitario
-t0 = 2.3; %tiempo para mover los datos medidos
-
 P = zpk([], [0 p1 p2 conj(p2)], k);
 
 kp = 2;
@@ -28,6 +25,9 @@ x_label = 'Tiempo [s]';
 
 %Respuesta al impulso
 load('impulso_PI_v1');
+
+a = -1/8; %ganancia para ajustar los datos al impulso unitario
+t0 = 2.3; %tiempo para mover los datos medidos
 
 fig1 = figure;
 [y, timp] = impulse(T);

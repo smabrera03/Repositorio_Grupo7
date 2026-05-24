@@ -10,10 +10,11 @@
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define C 0.0343 //Velocidad del sonido en cm/us
 #define X_REF 0.0
-#define ESC 0.0
+#define ESC 10.0
 #define TS 0.02
-#define UMBRAL_INF 0.3 //Umbral para considerar un error como significativo o no
-#define UMBRAL_SUP 15
+#define UMBRAL_INF 0.3 //Umbral para considerar un error como significativo o no. Cantidad mínima de cm que debe recorrer el carrito en un Ts
+#define UMBRAL_SUP 1 //Umbral para considerar un error como significativo o no. Cantidad máxima de cm que puede recorrer el carrito en un Ts
+//A la hora de estimar la derivada, solo se considerarán los errores tales que UMBRAL_INF < Error < UMBRAL_SUP
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84

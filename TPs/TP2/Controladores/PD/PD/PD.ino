@@ -53,7 +53,8 @@ float theta_x_gyro_fc = 0;
 float alfa = 0.1;
 
 float kp = 2.5;
-float kd = 0.01;
+//float kd = 0.01;
+float kd = 0;
 
 float error[2] = {0, 0};//Vector de errores
 //Nota importante: error[0] es e(n) (el error actual), y error[1] = e(n - 1) (el error anterior)
