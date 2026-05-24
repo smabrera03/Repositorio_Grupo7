@@ -12,8 +12,8 @@
 #define X_REF 0.0
 #define ESC 0.0
 #define TS 0.02
-#define UMBRAL_INF 0.3 //Umbral para considerar un error como significativo o no. Cantidad mínima de cm que debe recorrer el carrito en un Ts
-#define UMBRAL_SUP 1 //Umbral para considerar un error como significativo o no. Cantidad máxima de cm que puede recorrer el carrito en un Ts
+#define D_MIN 0.3/TS //Umbral para considerar un error como significativo o no. Cantidad mínima de cm que debe recorrer el carrito en un Ts
+#define D_MAX 30 //Umbral para considerar un error como significativo o no. Cantidad máxima de cm que puede recorrer el carrito en un Ts
 //A la hora de estimar la derivada, solo se considerarán los errores tales que UMBRAL_INF < Error < UMBRAL_SUP
 
 #define ANGULO_SERVO_MAX 58.55
@@ -92,23 +92,13 @@ void loop() {
   error[0] = x_ref - posicion;
 
   //Actualizo la derivada
-  float delta_error = 0;
-  if(error[0] > error[1]){
-    delta_error = error[0] - error[1];
-  }else {
-    delta_error = error[1] - error[0];
-  }
+  derivada[1] = derivada[0];
+  float beta = 0.9;
+  derivada[0] = beta * (2/TS) * (error[0] - error[1]) - (1 - beta) * derivada[1];
 
-  if(delta_error < UMBRAL_INF){
-    derivada[1] = derivada[0];
+  if(-D_MIN < derivada[0] && derivada[0] < D_MIN){
     derivada[0] = 0;
-  } else if(delta_error > UMBRAL_SUP){
-    derivada[1] = derivada[0];
-  } else {
-    derivada[1] = derivada[0];
-    derivada[0] = (2.0/TS) * (error[0] - error[1]) - derivada[1];
   }
-
 
   float angulo = kp * error[0] + kd * derivada[0];
 
@@ -117,7 +107,7 @@ void loop() {
   } else if(angulo > ANGULO_SERVO_MAX){
     angulo = ANGULO_SERVO_MAX;
   }
-  int duty_cycle_servo = (int)mapFloat(anuglo, -90, 90, 600, 2400);
+  int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
   float datos[4] = {posicion, angulo, error[0], derivada[0]};

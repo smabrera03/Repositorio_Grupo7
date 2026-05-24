@@ -53,8 +53,7 @@ float theta_x_gyro_fc = 0;
 float alfa = 0.1;
 
 float kp = 2.5;
-//float kd = 0.01;
-float kd = 0;
+float kd = 0.01;
 
 float error[2] = {0, 0};//Vector de errores
 //Nota importante: error[0] es e(n) (el error actual), y error[1] = e(n - 1) (el error anterior)
@@ -90,7 +89,7 @@ void loop() {
 
   //Actualizo la derivada
   derivada[1] = derivada[0];
-  derivada[0] = (2.0/TS) * (error[0] - error[1]) - derivada[0];
+  derivada[0] = (2.0/TS) * (error[0] - error[1]) - derivada[1];
 
   float angulo = kp * error[0] + kd * derivada[0];
 

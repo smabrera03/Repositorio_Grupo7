@@ -148,3 +148,32 @@ ylim([-3000, 3000]);
 grid on
 
 saveas(fig6, 'PD-Derivada ruidosa.png');
+
+
+load('PD-derivada mejorada.mat');
+
+fig7 = figure;
+
+t0 = 3.5;
+x_lim = [0, 6];
+x_label = 'Tiempo [s]';
+
+
+subplot(2,1,1);
+stairs(t - t0, error);
+title('Error');
+xlabel(x_label);
+xlim(x_lim);
+ylabel('Error [cm]');
+ylim([-20, 20]);
+grid on;
+
+subplot(2,1,2);
+stairs(t - t0, derivada);
+title('Derivada');
+xlabel(x_label);
+ylabel('Derivada [cm/s]');
+xlim(x_lim);
+grid on
+
+saveas(fig7, 'PD-derivada mejorada.png');
