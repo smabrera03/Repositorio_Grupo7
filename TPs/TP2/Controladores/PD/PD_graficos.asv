@@ -113,12 +113,10 @@ opt.PhaseMatchingFreq = 0.1;
 [Gm,Pm,Wcg,Wcp] = margin(L);
 Gm = 20 * log10(Gm);
 margin(L, opt);
-lineas = findall(fig5, 'Type', 'line');
-set(lineas(12:14), 'Color', 'b');
-set(lineas(12:14), 'LineWidth', 2);
+
 
 titulo = sprintf('Bode de L(s). \n Margen de ganancia %.2f dB en %.2f rad/s || Margen de fase %.1f ° en %.2f rad/s', Gm, Wcg, Pm, Wcp);
-title(titulo, 'Fontsize', 10);
+title(titulo);
 grid on;
 
 saveas(fig5, 'PD-Bode de L.png');
@@ -130,7 +128,7 @@ x_lim = [0, 5];
 
 fig6 = figure;
 subplot(2,1,1);
-stairs(t - t0, error);
+plot(t - t0, error);
 title('Error');
 xlabel(x_label);
 xlim(x_lim);
@@ -139,7 +137,7 @@ ylim([-20, 20]);
 grid on;
 
 subplot(2,1,2);
-stairs(t - t0, derivada);
+plot(t - t0, derivada);
 title('Derivada');
 xlabel(x_label);
 ylabel('Derivada [cm/s]');

@@ -82,6 +82,8 @@ title('Acción de control');
 
 saveas(fig4, 'PI-Acción de control(escalón).png')
 
+
+%Bode
 fig5 = figure;
 
 opt = bodeoptions;
@@ -93,8 +95,12 @@ opt.PhaseMatchingFreq = 0.1;
 Gm = 20 * log10(Gm);
 margin(L, opt);
 
+lineas = findall(fig5, 'Type', 'line');
+set(lineas(12:14), 'Color', 'b');
+set(lineas(12:14), 'LineWidth', 2);
+
 titulo = sprintf('Bode de L(s). \n Margen de ganancia %.2f dB en %.2f rad/s || Margen de fase %.1f ° en %.2f rad/s', Gm, Wcg, Pm, Wcp);
-title(titulo);
+title(titulo, 'Fontsize', 10);
 grid on;
 
 saveas(fig5, 'PI-Bode de L.png');

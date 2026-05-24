@@ -19,10 +19,10 @@ Gm = 20 * log10(Gm);
 margin(P, opt);
 
 lineas = findall(fig1, 'Type', 'line');
-set(lineas(12:14), 'Color', 'b');
-set(lineas(12:14), 'LineWidth', 2);
+set(lineas(12:14), 'Color', 'r');
+set(lineas, 'LineWidth', 1);
 
-titulo = sprintf('Bode de P(s). \n Margen de ganancia %.2f dB en %.2f rad/s || Margen de fase %.1f ° en %.2f rad/s', Gm, Wcg, Pm, Wcp);
+titulo = sprintf('Diagrama de Bode. \n Margen de ganancia %.2f dB en %.2f rad/s || Margen de fase %.1f ° en %.2f rad/s', Gm, Wcg, Pm, Wcp);
 title(titulo, 'Fontsize', 10);
 grid on;
 
