@@ -117,7 +117,7 @@ void loop() {
   } else if(angulo > ANGULO_SERVO_MAX){
     angulo = ANGULO_SERVO_MAX;
   }
-  int duty_cycle_servo = (int)mapFloat(anuglo, -90, 90, 600, 2400);
+  int duty_cycle_servo = (int)mapFloat(angulo, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
   float datos[4] = {posicion, angulo, error[0], derivada[0]};
