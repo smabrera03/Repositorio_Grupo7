@@ -6,7 +6,7 @@
 
 #define PERIODO 20000 //período del ciclo en us. En este caso se elige un preíodo grande para que el servo tenga tiempo para estabilizarse
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
-#define REF 0.0
+#define REF 15.0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -70,13 +70,14 @@ Matrix<2, 1> xk = {0, 0};
 Matrix<2, 1> xk_1 = {0, 0};
 
 Matrix<2, 1> L = {1.2089, 12.1923};
-Matrix<1, 2> K =  {-2.046, -0.3048};
 
-float F = 0.8;
+Matrix<1, 2> K = {0.3963, 0.2223};
+
+float F = 3.2959;
 
 size_t n_ciclos = 0;
 
-float ref = 0;
+float ref = 0.0;
 estado_t estado = HORIZONTAL;
 
 void loop() {
@@ -93,14 +94,15 @@ void loop() {
 
   uk_1 = uk;
 
+  //Observador
   xk_1 = xk;
   xk = Ad * xk_1 + Bd * uk_1 + L * (yk_1 - (Cd * xk_1)(0));
 
 
   if(estado == INCLINADO){
-    ref = 10;
+    ref = REF;
   }else{
-    ref = 0;
+    ref = 0.0;
   }
 
   uk = ((-K)*xk)(0) + F * ref;
@@ -114,8 +116,8 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(uk, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  float datos[5] = {xk(0), yk, xk(1), velocidad_gyro, uk};
-  matlab_send(datos, 5);
+  float datos[6] = {xk(0), yk, ref, xk(1), velocidad_gyro, uk};
+  matlab_send(datos, 6);
 
 
   if(n_ciclos == 100){

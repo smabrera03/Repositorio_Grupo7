@@ -14,8 +14,8 @@ Ass = [0 1;
  [num, den] = ss2tf(Ass, Bss, Css, Dss);
  P = tf(num, den);
  
- figure;
- bode(P); grid On;
+ %figure;
+ %bode(P); grid On;
  Ts = 0.02;
  
  Ad = eye(2) + Ass*Ts;
@@ -28,11 +28,34 @@ Ass = [0 1;
  
  L = (place(Ad', Cd', polos_obs_dis))'
  
- polos_realim_cont = [-6, -0.6];
+ polos_realim_cont = [-6.5, -6.6];
  polos_realim_dis = exp(Ts*polos_realim_cont);
  
  K = place(Ad, Bd, polos_realim_dis)
  
- K = [-2, -0.3];
-inversa = inv(eye(2) - (Ad + Bd*K));
-F = inv(Cd * inversa * Bd) %Está todo mal
+inversa = inv(eye(2) - (Ad - Bd*K));
+F = inv(Cd * inversa * Bd)
+
+load('polos_lentos.mat');
+
+angulo_lentos = angulo;
+t_lentos = t;
+
+load('polos_rapidos.mat');
+
+angulo_rapidos = angulo;
+t_rapidos = t;
+
+%t_lentos en mas largo que t_rapdios. Recorto los datos de los polos lentos
+
+N = length(t_rapidos);
+angulo_lentos = angulo_lentos(1:N);
+t = t_lentos(1:N);
+referencia = referencia(1:N);
+
+figure;
+plot(t, referencia); hold on;
+plot(t, angulo_lentos); hold on;
+plot(t, angulo_rapidos); 
+legend('referencia', 'respuesta lenta', 'respuesta rapida');
+grid on;
