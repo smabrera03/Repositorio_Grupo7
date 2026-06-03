@@ -6,8 +6,12 @@
 
 #define PERIODO 20000 //período del ciclo en us. En este caso se elige un preíodo grande para que el servo tenga tiempo para estabilizarse
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
-#define CICLOS 50 //Cantidad de ciclos que tienen que pasar para cambiar el valor de uk
-#define UK_REF -45 //ángulo que se moverá el servo
+#define REF 0.0
+
+#define ANGULO_SERVO_MAX 58.55
+#define ANGULO_SERVO_MIN -46.84
+
+typedef enum {HORIZONTAL, INCLINADO} estado_t;
 
 Adafruit_MPU6050 mpu;
 Servo miServo;
@@ -52,21 +56,28 @@ float alpha = 0.1; //NO TOCAR
 
 float uk = 0;
 float uk_1 = 0;
-int n_ciclo = 0; //número del ciclo
 
 float yk = 0;
 float yk_1 = 0;
 
 using namespace BLA;
 
-Matrix<2, 2> Ad= {1.0000, 0.0200, -8.6415, 0.0829};
-Matrix<2, 1> Bd = {0, 2.7781};
+Matrix<2, 2> Ad= {1.0000, 0.0200, -0.6631, 0.8053};
+Matrix<2, 1> Bd = {0, 0.2287};
 Matrix<1, 2> Cd = {1, 0};
 
 Matrix<2, 1> xk = {0, 0};
 Matrix<2, 1> xk_1 = {0, 0};
 
-Matrix<2, 1> L = {1.0466, -8.4321};
+Matrix<2, 1> L = {1.2089, 12.1923};
+Matrix<1, 2> K =  {-2.046, -0.3048};
+
+float F = 0.8;
+
+size_t n_ciclos = 0;
+
+float ref = 0;
+estado_t estado = HORIZONTAL;
 
 void loop() {
   unsigned long t_ini = micros();
@@ -83,25 +94,37 @@ void loop() {
   uk_1 = uk;
 
   xk_1 = xk;
-  xk = Ad * xk_1 + Bd * uk_1 + L * (yk_1 - Cd * xk_1);
+  xk = Ad * xk_1 + Bd * uk_1 + L * (yk_1 - (Cd * xk_1)(0));
 
-  if(n_ciclo%CICLOS == 0){
-    uk = (-1) * UK_REF;
-  };
+
+  if(estado == INCLINADO){
+    ref = 10;
+  }else{
+    ref = 0;
+  }
+
+  uk = ((-K)*xk)(0) + F * ref;
+
+  if(uk < ANGULO_SERVO_MIN){
+    uk = ANGULO_SERVO_MIN;
+  } else if(uk > ANGULO_SERVO_MAX){
+    uk = ANGULO_SERVO_MAX;
+  }
 
   int duty_cycle_servo = (int)mapFloat(uk, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  if((n_ciclo / CICLOS) % 2 == 0){
-    uk = UK_REF;
-  } else {
-    uk = -UK_REF;
-  };
+  float datos[5] = {xk(0), yk, xk(1), velocidad_gyro, uk};
+  matlab_send(datos, 5);
 
-  n_ciclo++;
 
-  float datos[4] = {xk(0), yk, xk(1), velocidad_gyro};
-  matlab_send(datos, 4);
+  if(n_ciclos == 100){
+    estado = INCLINADO;
+  }else if(n_ciclos == 200){
+    estado = HORIZONTAL;
+    n_ciclos = 0;
+  }
+  n_ciclos++;
 
   while(micros() - t_ini < PERIODO){}
 }

@@ -3,3 +3,6 @@ Hacer resumen del sistema de referencia para no tener que ir a buscarlas al tp a
 Solo se pide comparar la estimación con lo que se puede medir. No es necesario derivar la velocidad.
 Pero puede ser interesante. Hacer la derivada con backward difference. 
 
+Sobre los gráficos:
+superponer cada variable de estado con su estimación del observador
+Para la velocidad del carro, derivar la posición ¿bilineal? ¿backward difference?

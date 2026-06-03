@@ -22,6 +22,6 @@ Ass = [0 1;
  polos_obs = [-200, -201];
  polos_obs_dis = exp(Ts*polos_obs);
  
- L = (place(Ad', Cd', polos_obs_dis))';
+ L = (place(Ad', Cd', polos_obs_dis))'
  
  
