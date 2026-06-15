@@ -14,11 +14,15 @@
 #define TS 0.02 //Período en s
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define CICLOS 30 //Cantidad de ciclos que tienen que pasar para cambiar el valor de uk
-#define UK_REF1 20.0 //ángulo que se moverá el servo
-#define UK_REF2 -20.0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
+
+#define P_REF1 0.0
+#define P_REF2 0.0
+
+
+typedef enum {HORIZONTAL, INCLINADO} estado_t;
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // Setup
 Adafruit_MPU6050 mpu;
@@ -64,7 +68,6 @@ float alpha = 0.1; //NO TOCAR
 
 float uk = 0;
 float uk_1 = 0;
-int n_ciclo = 0; //número del ciclo
 
 using namespace BLA;
 
@@ -101,8 +104,23 @@ Matrix<4, 2> L = {
 1.8156617685, -0.9358982539
 };
 
+Matrix<1,4> K =  {
+5.5996930234, 0.3689816951, 8.6362409656, 0.6625498587
+};
+
+float H = -10.6113;
 
 float velocidad = 0; //Velocidad del carrito. La estimamos por backward
+
+float ref = 0.0;
+
+size_t n_ciclos = 0;
+
+estado_t estado = HORIZONTAL;
+
+float qk_1 = 0.0;
+float qk = 0.0;
+
 void loop() {
   unsigned long t_ini = micros();
 
@@ -115,18 +133,22 @@ void loop() {
   yk_1 = yk;
   yk(1) = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;
   yk(0) = posicion_carrito();
-  //Agregar ultrasónico
 
   uk_1 = uk;
 
   xk_1_hat = xk_hat;
   xk_hat = Ad * xk_1_hat + Bd * uk_1 + L * (yk_1 - Cd * xk_1_hat);
 
-  if((n_ciclo / CICLOS) % 2 == 0){
-    uk = UK_REF1;
-  } else {
-    uk = UK_REF2;
-  };
+  if(estado == INCLINADO){
+    ref = P_REF1;
+  }else{
+    ref = P_REF2;
+  }
+
+  qk_1 = qk;
+  qk = qk_1 + TS * (ref - yk(0));
+
+  uk = ((-K)*xk_hat)(0) - H * qk;
 
 
   if(uk < ANGULO_SERVO_MIN){
@@ -138,13 +160,19 @@ void loop() {
   int duty_cycle_servo = (int)mapFloat(uk, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
-  n_ciclo++;
 
   velocidad = (yk(0) - yk_1(0))/ TS;
 
-  float datos[9] = {uk, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{posiciones, posiciones angulares, velocidades angulares, velocidades}
-  matlab_send(datos, 9);
+  float datos[11] = {ref, qk, uk, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, integral del error,posiciones, posiciones angulares, velocidades angulares, velocidades}
+  matlab_send(datos, 11);
 
+  if(n_ciclos == 200){
+    estado = INCLINADO;
+  }else if(n_ciclos == 400){
+    estado = HORIZONTAL;
+    n_ciclos = 0;
+  }
+  n_ciclos++;
   while(micros() - t_ini < PERIODO){}
 }
 

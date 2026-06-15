@@ -78,6 +78,7 @@ float F = 3.2959;
 size_t n_ciclos = 0;
 
 float ref = 0.0;
+
 estado_t estado = HORIZONTAL;
 
 void loop() {
