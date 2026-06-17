@@ -5,6 +5,8 @@
 #include <NewPing.h>
 #include <BasicLinearAlgebra.h>
 
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+
 #define C 0.0343 //Velocidad del sonido en cm/us
 #define TRIGGER_PIN  6   // Pin de arduino conectado al pin del trigger
 #define ECHO_PIN     7   // Pin de arduino conectado al pin del echo
@@ -18,8 +20,8 @@
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
 
-#define P_REF1 0.0
-#define P_REF2 0.0
+#define P_REF1 -10.0
+#define P_REF2 10.0
 
 
 typedef enum {HORIZONTAL, INCLINADO} estado_t;
@@ -104,11 +106,11 @@ Matrix<4, 2> L = {
 1.8156617685, -0.9358982539
 };
 
-Matrix<1,4> K =  {
-5.5996930234, 0.3689816951, 8.6362409656, 0.6625498587
+Matrix<1,4> K = {
+3.9945108897, 0.3593139205, 7.9729373372, 0.3482649193
 };
 
-float H = -10.6113;
+float H = -7.5930;
 
 float velocidad = 0; //Velocidad del carrito. La estimamos por backward
 
@@ -122,6 +124,7 @@ float qk_1 = 0.0;
 float qk = 0.0;
 
 void loop() {
+  
   unsigned long t_ini = micros();
 
   sensors_event_t a, g, t;
@@ -147,9 +150,14 @@ void loop() {
 
   qk_1 = qk;
   qk = qk_1 + TS * (ref - yk(0));
-
+  
   uk = ((-K)*xk_hat)(0) - H * qk;
 
+  /*
+  if(ABS(ref - yk(0)) < 1){
+    uk = 0; 
+  }
+  */
 
   if(uk < ANGULO_SERVO_MIN){
     uk = ANGULO_SERVO_MIN;
@@ -166,9 +174,9 @@ void loop() {
   float datos[11] = {ref, qk, uk, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, integral del error,posiciones, posiciones angulares, velocidades angulares, velocidades}
   matlab_send(datos, 11);
 
-  if(n_ciclos == 200){
+  if(n_ciclos == 250){
     estado = INCLINADO;
-  }else if(n_ciclos == 400){
+  }else if(n_ciclos == 500){
     estado = HORIZONTAL;
     n_ciclos = 0;
   }

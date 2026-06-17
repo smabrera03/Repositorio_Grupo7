@@ -24,15 +24,24 @@ Ad_hat = [Ad, cero_4x1;
             
 Bd_hat = [Bd; 0];
 
-p1 = -7;
-norm_p2 = 5;
-ang_p2 = pi/180 * (180 - 50); %máximo ángulo: 180 - 58 para Mp < 15%
-p2 = norm_p2 * exp(i * ang_p2);
+norm_p1 = 12.2;
+ang_p1 = pi/180 * (180 - 26);
+
+p1 = norm_p1 * exp(i * ang_p1);
+p2 = conj(p1);
+
+norm_p3 = 4.5;
+ang_p3 = pi/180 * (180 - 77);
+p3 = norm_p3 * exp(i * ang_p3);
+p4 = conj(p3);
+
+p5 = -1.33;
+
+polos_cont = [p1, p2, p3, p4, p5];
+polos_dis = exp(Ts * polos_cont);
 
 zeta = -real(p2)/abs(p2);
 Mp = exp(-zeta * pi /(sqrt(1 - zeta^2))) * 100
-polos_cont = [p1, p1 - 0.1, p2, conj(p2), -4.5];
-polos_dis = exp(Ts * polos_cont);
 
 K_hat = place(Ad_hat, Bd_hat, polos_dis);
 K = K_hat(1:4);
