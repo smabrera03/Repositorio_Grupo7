@@ -1,0 +1,146 @@
+\section{Diseño del observador}
+\label{sec:obs}
+
+Para realizar un control por realimentación de estados, se necesita tener conocimiento de todas las variables de estado que conforman la planta. Dado que no se cuenta con sensores que sean capaces de medir a todas ellas (en particular, no se cuenta con un sensor de la velocidad del carrito y se asumirá que tampoco se cuenta con una medición de la velocidad angular de la barra), se requiere de algún otro método para estimar correctamente sus valores. Esto se realizará a través de un observador de Luenberger, considerando como salidas de la planta al vector $\mathbf{y} = [p \; \theta]^T$.
+
+La expresión general de unn observador de Luenberger en tiempo discreto es
+\begin{align*}
+    \widehat{\mathbf{x}}_{k+1} &= A_d \widehat{\mathbf{x}}_{k} + B_d u_k + L (\mathbf{y}_k - \widehat{\mathbf{y}}_k) \\
+    \widehat{\mathbf{y}}_{k+1} &= C_d \widehat{\mathbf{x}}_k + D_d u_k,
+\end{align*}
+donde $\widehat{\cdot}$ indica la estimación de una variable real. El modelo del observador es idéntico al de la planta, con el agregado del término correctivo $L (\mathbf{y}_k - \widehat{\mathbf{y}}_k)$, que corrige las estimaciones de las variables de forma tal que la salida observada tienda a coincidir con la salida real. Esto corrige errores de modelado y ruidos de medición, entre otras pertubaciones. Puede demostrarse que si el sistema es observable, ocurrirá que tanto la salida estimada como las variables de estado del observador convergerán a sus respectivos valores reales.
+
+\subsection{Verificación de observabilidad}
+
+Para poder diseñar un observador de Luenberger, se requiere que el sistema sea observable. Para ello, debe cumplirse que la matriz de observabilidad
+\begin{align*}
+    \mathcal{O} = \begin{bmatrix}
+        C_d \\
+        C_d A_d \\
+        C_d (A_d)^2 \\
+        C_d (A_d)^3
+    \end{bmatrix} = \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        1 & 0.2 & 0 & 0 \\
+        0 & 0 & 1 & 0.2 \\
+        0.945 & 0.0314 & 0 & 0 \\
+        -0.0001 & 0 & 1 & 0.0393 \\
+        0.8584 & 0.0369 & 0 & 0 \\
+        -0.0002 & -0.000001 & 1 & 0.0579
+    \end{bmatrix},
+\end{align*}
+tenga rango igual al orden del sistema, es decir 4. Puede verificarse que esto es así, y por lo tanto tiene sentido construir un observador de Luenberger. Intuitivamente, esto significa que el conocimiento de las salidas (posición y ángulo) son ``suficientes'' para conocer el comportamiento interno de todas las variables de estado (ellas dos, y sus derivadas).
+
+Si se midiera únicamente la posición $p$ del carro, es decir, si $\widetilde{C}_d = [ 0 \; 0 \; 1 \; 0 ]$, entonces la matriz de observabilidad sería
+\begin{align*}
+    \widetilde{\mathcal{O}} = \begin{bmatrix}
+        \widetilde{C}_d \\
+        \widetilde{C}_d A_d \\
+        \widetilde{C}_d (A_d)^2 \\
+        \widetilde{C}_d (A_d)^3
+    \end{bmatrix} = \begin{bmatrix}
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 1 & 0.2 \\
+        -0.0001 & 0 & 1 & 0.0393 \\
+        -0.0002 & -0.000001 & 1 & 0.0579
+    \end{bmatrix},
+\end{align*}
+que también tiene rango 4. Por ende, un observador basado únicamente en la posición del carrito también será capaz de estimar en forma correcta las demás variables de estado del sistema.
+
+Si en cambio se midiera únicamente el ángulo $\theta$ de la barra, donde $\widetilde{\widetilde{C}}_d = [ 1 \; 0 \; 0 \; 0 ]$, la matriz de observabilidad sería
+\begin{align*}
+    \widetilde{\widetilde{\mathcal{O}}} = \begin{bmatrix}
+        \widetilde{\widetilde{C}}_d \\
+        \widetilde{\widetilde{C}}_d A_d \\
+        \widetilde{\widetilde{C}}_d (A_d)^2 \\
+        \widetilde{\widetilde{C}}_d (A_d)^3
+    \end{bmatrix} = \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        1 & 0.2 & 0 & 0 \\
+        0.945 & 0.0314 & 0 & 0 \\
+        0.8584 & 0.0369 & 0 & 0 \\
+    \end{bmatrix},
+\end{align*}
+que a simple vista se observa que tiene rango 2. Por lo tanto, un observador basado únicamente en el ángulo de la barra será incapaz de estimar correctamente todas las variables de estado del sistema. En particular, tendŕa dificultades en estimar la posición y la velocidad del carrito.
+
+\subsection{Diseño por \emph{pole placement}}
+
+Los polos del observador se eligieron de forma tal que la convergencia del mismo sea rápida, pero que al mismo tiempo sea capaz de rechazar el ruido de alta frecuencia que se obtiene de las mediciones. Se eligieron dos polos a una frecuencia cinco veces mayor que la magnitud del mayor polo continuo, y otros dos polos a una frecuencia del doble. Los polos más rápidos se asociaron a las observaciones de ángulo y posición, mientras que los polos lentos se asociaron a las velocidades lineal y angular. Las singularidades lentas se eligieron de forma tal que se redujo el impacto del ruido de la medición (sobre todo en la velocidad), y se contempló el pequeño retraso que hay entre el comando al servo y el momento en que inicia a moverse (impacta a la velocidad angular).
+
+Los polos discretos del observador quedaron entonces en:
+\begin{align*}
+    p_1^{(o,d)} = 0.3094 &&
+    p_2^{(o,d)} = 0.6255 &&
+    p_3^{(o,d)} = 0.3094 &&
+    p_4^{(o,d)} = 0.6255.
+\end{align*}
+Esto equivale a polos continuos en
+\begin{align*}
+    p^{(o,c)}_1 = -58.7 &&
+    p^{(o,c)}_2 = -23.5 &&
+    p^{(o,c)}_3 = -58.7 &&
+    p^{(o,c)}_4 = -23.5.
+\end{align*}
+
+La matriz de realimentación $L$ fue calculada por \emph{pole placement}. El resultado obtenido fue
+\begin{align*}
+    L = \begin{bmatrix}
+        0.6371 &        0 \\
+       -3.4543 &        0 \\
+             0 &   1.0301 \\
+       -0.0030 &  11.1285
+    \end{bmatrix}.
+\end{align*}
+
+La corrección de los errores de observación en el ángulo y en la posición se realizan en forma proporcional a la diferencia entre el valor observado y el medido. La corrección de la velocidad angular se realiza en forma proporcional al error en el ángulo, modificando la velocidad observada en dirección contraria al error. Para la el error en la observación de la posición, la corrección se hace principalmente en forma proporcional al error en posición, con un ligero peso dado al error en ángulo.
+
+\subsection{Verificación}
+
+Para verificar el correcto funcionamiento del observador, se generó una secuencia de comandos tipo escalón a la entrada de la planta, registrando en cada instante los estados estimados por el observador y los medidos por los sensores. Para la medición de la velocidad angular, se utilizó el giróscopo. Para la medición de la velocidad del carrito, se utilizó una aproximación de la derivada por primera diferencia, la cual es muy ruidosa pero permite obtener al menos algo de información para realizar la comparación. La Figura~\ref{fig:obs-input} muestra la entrada aplicada a la planta.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{obs-input.eps}
+    \caption{Comandos tipo escalón enviados al servomotor para la verificación del observador.}
+    \label{fig:obs-input}
+\end{figure}
+
+La Figura~\ref{fig:obs-vars} muestra las variables de estado del sistema que fueron medidas por los sensores, así como las estimaciones provistas por el observador. El seguimiento del ángulo de la barra (Figura~\ref{fig:obs-theta}) y la posición del carrito (Figura~\ref{fig:obs-pos}) es rápido, teniéndose una muy pequeña diferencia entre ambos en todo momento. Esto es esperable dada la elección rápida de los polos del observador.
+
+En el caso de la velocidad angular de la barra (Figura~\ref{fig:obs-omega}), el seguimiento es bueno, pero se presenta una clara tendencia a estimar una magnitud menor a la medida. Los cambios muy bruscos de velocidad son seguidos con cierta lentitud, pero la forma cualitativa es correcta. Se logra reducir algo del ruido que se obtendría por la medición directa, el cual de todas formas no es muy grande pues el giróscopo da una señal relativamente limpia.
+
+La gran ganancia se nota en la estimación de la velocidad del carrito (Figura~\ref{fig:obs-vel}). Dado que no se tiene un sensor de velocidad \emph{per se}, la ``medición'' es en realidad la aproximación por primera diferencia, obtenida a partir de la posición. Por este motivo, la señal medida es extremadamente ruidosa. El observador es capaz de captar la tendencia de la velocidad del carrito, reduciendo drásticamente el ruido. Esto va a ser crucial para la etapa de realimentación de estados, donde se podrá utilizar a la velocidad como parte de la señal de control, sin producir las vibraciones que se observaron durante el diseño del controlador PD en el trabajo anterior.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{obs-theta.eps}
+        \caption{Ángulo de la barra.}
+        \label{fig:obs-theta}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{obs-pos.eps}
+        \caption{Posición del carrito.}
+        \label{fig:obs-pos}
+    \end{subfigure}
+
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{obs-omega.eps}
+        \caption{Velocidad angular de la barra.}
+        \label{fig:obs-omega}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{obs-vel.eps}
+        \caption{Velocidad del carrito.}
+        \label{fig:obs-vel}
+    \end{subfigure}
+    \caption{Estados medidos y estimados por el observador.}
+    \label{fig:obs-vars}
+\end{figure}
+
+% vim: ts=4 sts=4 sw=4 et lbr

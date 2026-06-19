@@ -1,0 +1,115 @@
+% Controlador
+% K = acker(G.a, G.b, -1)
+% kr = -1/G.c/inv(G.a-G.b*K)/G.b
+% Observador
+% p_des_c = 5*pc;
+% p_des = exp(p_des_c*Ts)
+% Ad = eye(2) + G.a*Ts;
+% Bd = G.b*Ts;
+% Cd = G.c;
+% Dd = G.d;
+
+Ts = 1/50
+
+%% Observador de todas las variables de estado
+s = tf('s');
+P = -8.046 / s / (s + 1.75) / (s^2 + 21.4*s + 137.6);
+[z, p_P, k] = zpkdata(P);
+p_max = max(abs(p_P{1}));
+p_des = 5*[p_max 0.4*p_max 0.4*p_max p_max]
+% Chequear observabilidad
+A = [0 1 0 0;
+-137.6 -21.4 0 0;
+0 0 0 1;
+-0.15 0 0 -1.75];
+B = [0 ; 53.64; 0; 0];
+C = [1 0 0 0;
+    0 0 1 0];
+D = 0;
+
+Ad = eye(4) + A*Ts;
+Bd = B*Ts;
+Cd = C;
+Dd = D;
+p_des_d = exp(-Ts*p_des)
+
+L_o = place(Ad', Cd', p_des_d)'
+
+%% Nuevo obs
+p_des = 5*[p_max 0.4*p_max 0.4*p_max p_max];
+p_des_d_ant = exp(-Ts*p_des)
+p_des = -10*[1.2 1.21 1.21 .9];
+
+p_des_d = exp(Ts*p_des)
+
+L_o = place(Ad', Cd', p_des_d)'
+eig(Ad-L_o*Cd)
+
+%%
+L_inf = [ 0.0003  0.0002;
+   -0.4655  -0.0020;
+   0.0001  0.3918;
+   -0.0019  1.5908]
+p_d_inf = eig(Ad-L_inf*Cd)
+p_c_inf = log(p_d_inf)/Ts
+
+%% Exporto (valores anteriores 22/11)
+clc;
+headers = {'pos', 'pos_o', 'vel', 'vel_o', 'ang', 'ang_o', 'vel_ang', 'vel_ang_o'};
+vals_obs = [out.pos, out.pos_o, out.vel, out.vel_o, out.ang, out.ang_o, out.vel_ang, out.vel_ang_o];
+
+% Guardar CSV con encabezados
+filename = 'Variables_Cont.csv';
+fid = fopen(filename, 'w');
+
+% Escribir encabezados
+fprintf(fid, '%s,', headers{1:end-1});
+fprintf(fid, '%s\n', headers{end});
+fclose(fid);
+
+% Escribir datos
+dlmwrite(filename, vals_obs, '-append');
+
+%% Abro el .csv
+filename = 'Variables_Cont.csv';
+data = readtable(filename);
+
+% Extraer variables desde la tabla
+pos      = data.pos;
+pos_o    = data.pos_o;
+vel      = data.vel;
+vel_o    = data.ang;
+ang      = data.vel_o;
+ang_o    = data.ang_o;
+vel_ang  = data.vel_ang;
+vel_ang_o = data.vel_ang_o;
+
+%% Crear vector de tiempo
+n = height(data);          % cantidad de muestras
+t = Ts * (0:n-1);          
+
+%% Graficos
+close all;
+figure;
+plot(t, pos, '--', 'LineWidth', 1.4); hold on;
+plot(t, pos_o, 'LineWidth', 1.4);
+xlabel('Tiempo [s]'); ylabel('Posición [m]');
+legend('Posición', 'Posición Estimada'); grid on;
+
+figure;
+plot(t, vel, '--',  'LineWidth', 1.4); hold on;
+plot(t, vel_o, 'LineWidth', 1.4);
+xlabel('Tiempo [s]'); ylabel('Velocidad [m/s]');
+legend('Velocidad', 'Velocidad Estimada'); grid on;
+
+figure;
+plot(t, ang, '--',  'LineWidth', 1.4); hold on;
+plot(t, ang_o, 'LineWidth', 1.4);
+xlabel('Tiempo [s]'); ylabel('Ángulo [°]');
+legend('Ángulo', 'Ángulo Observado'); grid on;
+
+figure;
+plot(t, vel_ang, '--', 'LineWidth', 1.4); hold on;
+plot(t, vel_ang_o, 'LineWidth', 1.4);
+xlabel('Tiempo [s]'); ylabel('Velocidad Angular [°/s]');
+legend('Velocidad Angular', 'Velocidad Angular Observada'); grid on;

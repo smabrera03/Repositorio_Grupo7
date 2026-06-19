@@ -72,7 +72,7 @@ Matrix<2, 1> xk_1 = {0, 0};
 Matrix<2, 1> L = {1.2089, 12.1923};
 
 Matrix<1, 2> K = {0.3963, 0.2223};
-
+'''
 float F = 3.2959;
 
 size_t n_ciclos = 0;
@@ -80,7 +80,7 @@ size_t n_ciclos = 0;
 float ref = 0.0;
 
 estado_t estado = HORIZONTAL;
-
+'''
 void loop() {
   unsigned long t_ini = micros();
 
@@ -107,20 +107,20 @@ void loop() {
   }
 
   uk = ((-K)*xk)(0) + F * ref;
-
+'''
   if(uk < ANGULO_SERVO_MIN){
     uk = ANGULO_SERVO_MIN;
   } else if(uk > ANGULO_SERVO_MAX){
     uk = ANGULO_SERVO_MAX;
   }
-
+'''
   int duty_cycle_servo = (int)mapFloat(uk, -90, 90, 600, 2400);
   miServo.writeMicroseconds(duty_cycle_servo);
 
   float datos[6] = {xk(0), yk, ref, xk(1), velocidad_gyro, uk};
   matlab_send(datos, 6);
 
-
+'''
   if(n_ciclos == 100){
     estado = INCLINADO;
   }else if(n_ciclos == 200){
@@ -128,7 +128,7 @@ void loop() {
     n_ciclos = 0;
   }
   n_ciclos++;
-
+'''
   while(micros() - t_ini < PERIODO){}
 }
 
