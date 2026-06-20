@@ -1,5 +1,6 @@
 t = double(out.tout);
 uk = double(out.uk);
+qk = double(out.qk);
 
 
 posiciones = double(out.posiciones);
@@ -19,5 +20,5 @@ vel = double(out.vel);
 vel_med = vel(:, 1);
 vel_obs = vel(:, 2);
 
-save('referencia_datos', 't', 'ref', 'uk', 'pos_med', 'pos_obs', 'ang_med', 'ang_obs', 'velang_med', 'velang_obs', 'vel_med', 'vel_obs'); %para volcar los datos en un archivo
+save('AI_datos', 't', 'ref', 'qk', 'uk', 'pos_med', 'pos_obs', 'ang_med', 'ang_obs', 'velang_med', 'velang_obs', 'vel_med', 'vel_obs'); %para volcar los datos en un archivo
 %Para recuperar: load('datos_sin_carrito.mat');

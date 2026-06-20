@@ -14,8 +14,6 @@
 #define TS 0.02 //Período en s
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define CICLOS 30 //Cantidad de ciclos que tienen que pasar para cambiar el valor de uk
-#define UK_REF1 20.0 //ángulo que se moverá el servo
-#define UK_REF2 -20.0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84

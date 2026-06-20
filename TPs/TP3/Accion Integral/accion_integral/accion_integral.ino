@@ -20,8 +20,8 @@
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
 
-#define P_REF1 -10.0
-#define P_REF2 10.0
+#define P_REF1 -8.0
+#define P_REF2 2.0
 
 
 typedef enum {HORIZONTAL, INCLINADO} estado_t;
@@ -107,10 +107,10 @@ Matrix<4, 2> L = {
 };
 
 Matrix<1,4> K = {
-3.9945108897, 0.3593139205, 7.9729373372, 0.3482649193
+1, 0.5, 8.9671222670, 0.7007598002
 };
 
-float H = -7.5930;
+float H = -11.6105;
 
 float velocidad = 0; //Velocidad del carrito. La estimamos por backward
 
@@ -171,12 +171,12 @@ void loop() {
 
   velocidad = (yk(0) - yk_1(0))/ TS;
 
-  float datos[11] = {ref, qk, uk, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, integral del error,posiciones, posiciones angulares, velocidades angulares, velocidades}
+  float datos[11] = {uk, qk, ref, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, integral del error,posiciones, posiciones angulares, velocidades angulares, velocidades}
   matlab_send(datos, 11);
 
-  if(n_ciclos == 250){
+  if(n_ciclos == 500){
     estado = INCLINADO;
-  }else if(n_ciclos == 500){
+  }else if(n_ciclos == 1000){
     estado = HORIZONTAL;
     n_ciclos = 0;
   }

@@ -18,8 +18,8 @@
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
 
-#define P_REF1 -5.0
-#define P_REF2 5.0
+#define P_REF1 -8.0
+#define P_REF2 2.0
 
 
 typedef enum {HORIZONTAL, INCLINADO} estado_t;
@@ -139,7 +139,7 @@ void loop() {
   if(estado == INCLINADO){
     ref(0) = P_REF1;
   }else{
-    ref = P_REF2;
+    ref(0) = P_REF2;
   }
 
   uk = ((-K)*xk_hat)(0) + (F * ref)(0);
@@ -157,12 +157,12 @@ void loop() {
 
   velocidad = (yk(0) - yk_1(0))/ TS;
 
-  float datos[10] = {ref(0), uk, yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, posiciones, posiciones angulares, velocidades angulares, velocidades}
+  float datos[10] = {uk, ref(0), yk(0), xk_hat(2), yk(1), xk_hat(0), velocidad_gyro, xk_hat(1), velocidad, xk_hat(3)}; //{referencia, posiciones, posiciones angulares, velocidades angulares, velocidades}
   matlab_send(datos, 10);
 
-  if(n_ciclos == 200){
+  if(n_ciclos == 250){
     estado = INCLINADO;
-  }else if(n_ciclos == 400){
+  }else if(n_ciclos == 500){
     estado = HORIZONTAL;
     n_ciclos = 0;
   }
