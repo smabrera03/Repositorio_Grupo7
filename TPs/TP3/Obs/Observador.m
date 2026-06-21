@@ -30,7 +30,8 @@ Bd = Bss*Ts;
 Cd = Css;
 Dd = Dss;
 
-polos_obs_cont = [-50, -40, -20, -10]; %Una década más rápidos que la dinámica más rápida de la planta
+%polos_obs_cont = [-50, -40, -20, -10]; %Una década más rápidos que la dinámica más rápida de la planta
+polos_obs_cont = [-50, -40, -30, -30];
 %NOTA: Los polos tienen que ser menores que 50 Hz*2 * pi/2 = 157.08 rad/s.
 %De otra forma, le pediriamos al observador una dinámica mayor a la que nos
 %permite la tasa de muestreo
