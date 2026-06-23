@@ -1,4 +1,4 @@
-close all; clear; clc;
+close all; clear;
 
 Ass = [0 1 0 0;
     -33.1549 -9.7360 0 0;
@@ -30,8 +30,8 @@ Bd = Bss*Ts;
 Cd = Css;
 Dd = Dss;
 
-%polos_obs_cont = [-50, -40, -20, -10]; %Una década más rápidos que la dinámica más rápida de la planta
-polos_obs_cont = [-50, -40, -30, -30];
+polos_obs_cont = [-50, -40, -20, -10]; %Una década más rápidos que la dinámica más rápida de la planta
+%polos_obs_cont = [-30, -30, -20, -20];
 %NOTA: Los polos tienen que ser menores que 50 Hz*2 * pi/2 = 157.08 rad/s.
 %De otra forma, le pediriamos al observador una dinámica mayor a la que nos
 %permite la tasa de muestreo
@@ -41,6 +41,11 @@ cada transferencia (3 o 4 veces como mínimo). Igual mucho no cambia
 El de 150 lo ajustamos por lo que veíamos en el gráfico. Esa dinámica del
 observador era muy lenta. Es decir, hicimos los polos 3 o 4 veces más
 rápido y después ajustamos en base al gráfico.
+
+1er col: error de la pos
+2da col: error del ang
+
+filas como vector de estados
 %}
 polos_obs_dis = exp(Ts*polos_obs_cont);
 

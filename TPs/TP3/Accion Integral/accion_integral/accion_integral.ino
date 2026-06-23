@@ -99,6 +99,65 @@ Matrix<4, 1> xk_1_hat = {0, 0, 0, 0};
 Matrix<2, 1> yk_1 = {0, 0};
 Matrix<2, 1> yk = {0, 0};
 
+
+//MEDICIÓN TP
+Matrix<4, 2> L = {
+-0.0749221777, 0.6376474566, 
+-1.0880131272, -0.0807759563, 
+0.6613733390, -0.1225064780, 
+1.8156617685, -0.9358982539
+};
+
+/*Matrix<4,2> L = {
+-0.0000000000, 0.5861483179, 
+-0.0000000000, 1.0675499293, 
+0.5808683179, 0.0000000000, 
+1.6287047734, 0.7188900000
+};*/
+
+/*
+//[-20, -20, -10 -10]
+Matrix<4,2> L = {
+-0.0000000000, 0.3162292009, 
+-0.0000000000, -0.7538636508, 
+0.3109492009, -0.0000000000, 
+-0.1214501598, 0.7188900000
+};
+*/
+
+
+
+//Medición
+Matrix<1,4> K = {
+1, 0.5, 8.9671222670, 0.7007598002
+};
+
+float H = -11.6105;
+
+
+/*
+Matrix<1,4> K = {
+4.8103252085, 0.1941885216, 5.5973034029, 0.8
+};
+
+float H = -5.1227;
+*/
+
+
+float velocidad = 0; //Velocidad del carrito. La estimamos por backward
+
+float ref = 0.0;
+
+size_t n_ciclos = 0;
+
+estado_t estado = HORIZONTAL;
+
+float qk_1 = 0.0;
+float qk = 0.0;
+
+
+/*
+MATRICES USADAS EN LA MEDICIÓN DEL TP:
 Matrix<4, 2> L = {
 -0.0749221777, 0.6376474566, 
 -1.0880131272, -0.0807759563, 
@@ -112,18 +171,7 @@ Matrix<1,4> K = {
 };
 
 float H = -11.6105;
-
-float velocidad = 0; //Velocidad del carrito. La estimamos por backward
-
-float ref = 0.0;
-
-size_t n_ciclos = 0;
-
-estado_t estado = HORIZONTAL;
-
-float qk_1 = 0.0;
-float qk = 0.0;
-
+*/
 void loop() {
   
   unsigned long t_ini = micros();
