@@ -17,7 +17,8 @@ Bd = Bss*Ts;
 Cd = Css;
 Dd = Dss;
 
-K_hat = [8.3705    0.5610    8.9671    0.7008  -11.6105];
+%K_hat = [8.3705    0.5610    8.9671    0.7008  -11.6105];
+K_hat = [4.7667    0.4259    5.6193    0.4565   -4.6566];
 
 cero_4x1 = [0; 0; 0; 0];
 Ad_au = [Ad, cero_4x1; 
@@ -29,7 +30,7 @@ Dd_au = Dd;
 
 sysd = ss(Ad_au, Bd_au, Cd_au, Dd_au, Ts);
 
-load('AI_datos', 'ref', 't', 'pos_obs');
+load('AI_datos_corregidos', 'ref', 't', 'pos_obs');
 
 [~, ~, x_au] = lsim(sysd, ref, t);
 
@@ -39,4 +40,4 @@ pos_sim = x_au(:, 3);
 vel_sim = x_au(:, 4);
 int_sim = x_au(:, 5);
 
-save('AI_sim.mat' ,'ang_sim', 'velang_sim', 'pos_sim', 'vel_sim', 'int_sim');
+save('AI_sim_corregido.mat' ,'ang_sim', 'velang_sim', 'pos_sim', 'vel_sim', 'int_sim');

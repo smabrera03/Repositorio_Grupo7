@@ -1,13 +1,18 @@
 close all; clear;
 
-load('AI_datos.mat');
-load('AI_sim.mat');
+%load('AI_datos.mat');
+%load('AI_sim.mat');
 
+load('AI_datos_corregidos.mat');
+load('AI_sim_corregido.mat');
+
+ti = 40;
+tf = 50; %Tiempo inicial y final de la simulación
 figure;
 plot(t, uk, 'LineWidth', 2);
 grid on;
 xlabel('Tiempo [s]');
-xlim([0, t(end)]);
+xlim([ti, tf]);
 ylabel('Acción de control [°]');
 exportgraphics(gcf, 'AI_img\uk.pdf', 'ContentType', 'image', 'Resolution', 300);
 
@@ -18,7 +23,7 @@ plot(t, pos_obs, 'r-.'); hold on;
 plot(t, pos_sim, 'k--');
 grid on;
 legend('Referencia', 'Posición observada', 'Posición simulada');
-xlim([0, t(end)]);
+xlim([ti, tf]);
 xlabel('Tiempo [s]');
 ylim([-13, 10]);
 ylabel('Posición [cm]');
@@ -29,7 +34,7 @@ plot(t, vel_obs, 'r-'); hold on;
 plot(t, vel_sim, 'k--');
 grid on;
 legend('Velocidad observada', 'Velocidad simulada');
-xlim([0, t(end)]);
+xlim([ti, tf]);
 xlabel('Tiempo [s]');
 ylim([-40, 40]);
 ylabel('Velocidad [cm/s]');
@@ -46,7 +51,7 @@ plot(t, ang_obs, 'r-'); hold on;
 plot(t, ang_sim, 'k--');
 grid on;
 legend('Ángulo observado', 'Ángulo simulado');
-xlim([0, t(end)]);
+xlim([ti, tf]);
 xlabel('Tiempo [s]');
 ylabel('Ángulo de la barra [°]');
 exportgraphics(gcf, 'AI_img\ang.pdf', 'ContentType', 'image', 'Resolution', 300);
@@ -56,7 +61,7 @@ plot(t, velang_obs, 'r-'); hold on;
 plot(t, velang_sim, 'k--');
 grid on;
 legend('Velocidad angular observada', 'Velocidad angular simulada');
-xlim([0, t(end)]);
+xlim([ti, tf]);
 xlabel('Tiempo [s]');
 ylabel('Velocidad angular [°/s]');
 exportgraphics(gcf, 'AI_img\velang.pdf', 'ContentType', 'image', 'Resolution', 300);

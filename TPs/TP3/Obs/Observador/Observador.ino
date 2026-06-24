@@ -15,7 +15,7 @@
 #define N_MUESTRAS 50 //Cantidad de vececs que se mide el ángulo de la IMU para estimar el sesgo
 #define CICLOS 30 //Cantidad de ciclos que tienen que pasar para cambiar el valor de uk
 #define UK_REF1 0.0 //ángulo que se moverá el servo
-#define UK_REF2 20.0
+#define UK_REF2 -20.0
 
 #define ANGULO_SERVO_MAX 58.55
 #define ANGULO_SERVO_MIN -46.84
@@ -94,14 +94,16 @@ Matrix<4, 1> xk_1_hat = {0, 0, 0, 0};
 Matrix<2, 1> yk_1 = {0, 0};
 Matrix<2, 1> yk = {0, 0};
 
+
+//observador mediciones
 /*
-observador mediciones
 Matrix<4, 2> L = {
 -0.0749221777, 0.6376474566, 
 -1.0880131272, -0.0807759563, 
 0.6613733390, -0.1225064780, 
 1.8156617685, -0.9358982539
-};*/
+};
+*/
 
 /*
 Observador informe
@@ -112,14 +114,24 @@ Matrix<4,2> L = {
 5.4271828091, 0.7188900000
 };*/
 
-
-//[-20, -20, -10 -10]
+/*
 Matrix<4,2> L = {
--0.0000000000, 0.3162292009, 
--0.0000000000, -0.7538636508, 
-0.3109492009, -0.0000000000, 
--0.1214501598, 0.7188900000
+-0.0000000000, 0.4579311196, 
+-0.0000000000, -0.0225111943, 
+0.4526511196, -0.0000000000, 
+0.5724929901, 0.7188900000
 };
+*/
+
+
+//[-25 -25 -20 -20]
+Matrix<4,2> L = {
+-0.0000000000, 0.5284292943, 
+-0.0000000000, 0.6780620908, 
+0.5231492943, -0.0000000000, 
+1.2544547571, 0.7188900000
+};
+
 
 float velocidad = 0; //Velocidad del carrito. La estimamos por backward
 void loop() {
