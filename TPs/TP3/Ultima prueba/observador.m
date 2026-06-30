@@ -30,7 +30,8 @@ Bd = Bss*Ts;
 Cd = Css;
 Dd = Dss;
 
-polos_obs_cont = [-8, -8, -15, -15];
+polos_obs_cont = [-7.0, -7.1, -7.5, -7.5];
+fprintf('polos_obs_cont = [%.2f, %.2f, %.2f, %.2f]; \n\n', polos_obs_cont(1), polos_obs_cont(2), polos_obs_cont(3), polos_obs_cont(4));
 polos_obs_dis = exp(Ts*polos_obs_cont);
 
 L = place(Ad', Cd', polos_obs_dis)';

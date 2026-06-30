@@ -24,16 +24,16 @@ Ad_hat = [Ad, cero_4x1;
             
 Bd_hat = [Bd; 0];
 
-p1 = -7;
-p2 = -7.1;
+p1 = -8;
+p2 = -8.1;
 
-p3 = -3.6;
-p4 = -3.5;
+p3 = -5.1;
+p4 = -5;
 
 p5 = -9;
 
 polos_cont = [p1, p2, p3, p4, p5];
-fprintf('polos_cont = [%.2f, %.2f, %.2f, %.2f, %.2f] \n', p1, p2, p3, p4, p5);
+fprintf('polos_cont = [%.2f, %.2f, %.2f, %.2f, %.2f] \n\n', p1, p2, p3, p4, p5);
 polos_dis = exp(Ts * polos_cont);
 
 zeta = -real(p3)/abs(p3);

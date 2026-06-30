@@ -100,17 +100,16 @@ Matrix<2, 1> yk_1 = {0, 0};
 Matrix<2, 1> yk = {0, 0};
 
 Matrix<4,2> L = {
-0.0000000000, 0.2123179904, 
--0.0000000000, -0.8141441611, 
-0.2070379904, 0.0000000000, 
--0.1542981106, 0.7188900000
+0.0000000000, 0.0664765927,
+-0.0000000000, -0.4612974006,
+0.0611965927, 0.0000000000,
+0.2370507790, 0.7188900000
 };
 
 Matrix<1,4> K = {
-8.2480570726, 0.7438260570, 10.2677725862, 0.9033112614
+12.8086195086, 1.0555269590, 17.8162469273, 1.5630921590
 };
-
-float H = -10.17304; 
+float H = -20.95238;
 
 float velocidad = 0; //Velocidad del carrito. La estimamos por backward
 
@@ -151,7 +150,7 @@ void loop() {
   theta_x_acc = (180/PI) * atan2(a.acceleration.y, a.acceleration.z) - theta_bias;
 
   yk_1 = yk;
-  yk(1) = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;
+  yk(1) = alpha * theta_x_acc + (1 - alpha) * theta_x_gyro;  
   yk(0) = posicion_carrito();
 
   uk_1 = uk;
