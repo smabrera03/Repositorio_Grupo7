@@ -25,7 +25,7 @@ Ad_hat = [Ad, cero_4x1;
 Bd_hat = [Bd; 0];
 
 p1 = -7.0;
-p3 = -7.5; %8.1 anduvo
+p3 = -8.1; %8.1 anduvo
 
 p2 = -2.8;
 p4 = -2.81;
