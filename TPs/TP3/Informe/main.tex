@@ -1,0 +1,199 @@
+\documentclass[a4paper,12pt]{article}
+
+% ================================================== DATOS ==================================================
+
+% Información de la materia
+\newcommand{\codMateria}{TA135}
+\newcommand{\nombreMateria}{Taller de}
+\newcommand{\cuatrimestre}{1.\textsuperscript{er} Cuatrimestre}
+
+% Información del TP
+\newcommand{\TpTitulo}{Trabajo Práctico n.° 3}
+\newcommand{\fecha}{\today}
+\newcommand{\group}{Grupo 7}
+
+% Información de alumnos
+\newcommand{\nombreA}{Lautaro García Vitale}
+\newcommand{\padronA}{110.028}
+\newcommand{\emailA}{lagarciav@fi.uba.ar}
+
+\newcommand{\nombreB}{Santiago Manuel Cabrera}
+\newcommand{\padronB}{110.445}
+\newcommand{\emailB}{smcabrera@fi.uba.ar}
+
+% ================================================== PAQUETES =================================================
+
+% Codificación y lenguaje
+\usepackage[utf8]{inputenc}
+\usepackage[ddmmyy]{datetime}
+\usepackage[language=spanish]{lipsum}
+\usepackage[spanish]{datetime2}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+% Márgenes y página
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{emptypage}
+%\usepackage{parskip}
+
+% Encabezado personalizado
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\group}
+\lhead{\TpTitulo}
+\cfoot{\thepage}
+
+% Tipografía matemática
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{yhmath}
+\usepackage{dsfont}
+\usepackage{esdiff}
+\usepackage{xfrac}
+\usepackage{siunitx}
+\sisetup{per-mode=reciprocal, separate-uncertainty=true}
+
+% Gráficos y tablas
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage[spanish]{babel}
+\addto\captionsspanish{
+  \renewcommand{\tablename}{Tabla}
+}
+
+% TikZ y gráficos avanzados
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tikz}
+
+% Código fuente y resaltado
+\usepackage{minted}
+\usepackage{tcolorbox}
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}  % Color de fondo del código
+\usemintedstyle{friendly}                  % Estilo del resaltado de sintaxis
+\setminted{
+    linenos=true,                          % Numeración de líneas
+    bgcolor=codebg,                        % Color de fondo del código
+    fontsize=\footnotesize,                % Tamaño de la fuente
+    frame=lines,                           % Estilo del marco
+    framesep=2mm,                          % Separación del marco
+    baselinestretch=1.2,                   % Espaciado entre líneas
+    breaklines=true,                       % Romper líneas largas automáticamente
+    encoding=utf8,                         % Codificación del archivo
+    tabsize=4,                             % Tamaño de la tabulación
+}
+
+% Misceláneo
+\usepackage{anyfontsize}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{comment}
+\usepackage{multicol}
+\usepackage[numbers,square]{natbib}
+
+% Estilo de bibliografía
+\bibliographystyle{IEEEtran}
+
+
+% ==============================================================================================================
+% ==============================================================================================================
+
+
+\begin{document}
+
+% ================================================== CARÁTULA ==================================================
+
+\pagenumbering{arabic} % Comienza la numeración
+
+\vspace{-1 cm} % La primera hoja tiene que tener menos espaciado
+
+\begin{center}
+  \begin{minipage}{0.8 cm}
+    \includegraphics[width=\linewidth]{img/fiuba.png}
+  \end{minipage}
+  \begin{minipage}{\widthof{\large{\textsc{Universidad de Buenos Aires}}}}
+    \centering
+    \large{\textsc{Universidad de Buenos Aires}}\\
+    \large{\textsc{Facultad de Ingeniería}}\\
+    \small{Año 2026 -- \cuatrimestre}
+  \end{minipage}
+\end{center}
+\vspace{10mm}
+\begin{center}
+  \huge{\underline{\textsc{\nombreMateria}}} \\
+  \huge{\underline{\textsc{Automatización y Control}}} \\
+  \vspace{7 pt}
+  \Large{\TpTitulo \\}
+  \vspace{3mm}
+  \large{\group}
+\end{center}
+
+\newcommand{\anchopadron}{\widthof{000 000}}
+\begin{center}
+  \begin{tabular}{l l l}
+    \nombreA & \parbox{\anchopadron}{\raggedleft \padronA} & \texttt{\emailA} \\
+    \nombreB & \parbox{\anchopadron}{\raggedleft \padronB} & \texttt{\emailB}
+  \end{tabular}
+\end{center}
+\vspace{8mm}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}r p{0.62\textwidth}@{}}
+\textbf{Docentes:} & Dr. Ing. Claudio Pose -- Ing. Tomás González.
+\end{tabular}
+\end{center}
+
+\vspace{2em}
+\thispagestyle{empty}
+
+\begin{abstract}
+En este trabajo práctico se estudia el modelado, observación y control de una planta \textit{ball and beam}. A partir del modelo en variables de estado se diseña un observador de Luenberger y se implementan distintas estrategias de control por realimentación de estados: estabilización alrededor del equilibrio, seguimiento de referencias mediante acción de \textit{feed-forward} y seguimiento con acción integral. Los resultados experimentales se comparan con simulaciones para evaluar el desempeño real del sistema, prestando especial atención al error en estado estacionario, el sobrepico, el tiempo de establecimiento y las limitaciones introducidas por el rozamiento, el ruido de medición y la dinámica mecánica de la planta.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introducción}
+
+En este trabajo práctico se aborda el modelado, la estimación de estados y el diseño de controladores para una planta de tipo \textit{ball and beam}. El objetivo principal consiste en analizar el comportamiento dinámico del sistema y diseñar estrategias de control capaces de estabilizarlo, permitir el seguimiento de referencias y reducir el error en estado estacionario. Para ello, se desarrolla primero el modelo en variables de estado, luego se diseña un observador de Luenberger para estimar las variables no medidas directamente y finalmente se implementan controladores por realimentación de estados, con y sin acción integral, comparando sus resultados simulados con los obtenidos experimentalmente.
+
+\section{Modelado}
+\input{modelado.tex}
+
+\section{Diseño del observador}
+\input{observador.tex}
+
+\input{control.tex}
+
+\section{Conclusiones}
+
+En el desarrollo del trabajo se logró modelar la planta, verificar sus propiedades de observabilidad y controlabilidad, y diseñar un observador capaz de estimar las variables de estado necesarias para implementar las leyes de control. La comparación entre simulación y ensayo experimental mostró que el modelo captura adecuadamente la dinámica general del sistema, aunque no reproduce por completo efectos no ideales como rozamiento, juegos mecánicos, vibraciones estructurales y ruido de medición.
+
+El controlador por realimentación de estados permitió estabilizar el sistema alrededor del punto de equilibrio, pero presentó error en estado estacionario en la posición del carrito debido principalmente al rozamiento estático. Al incorporar la matriz de \textit{feed-forward}, se consiguió seguir referencias de posición, aunque se verificó que no es posible imponer simultáneamente una referencia arbitraria de ángulo en régimen permanente, ya que físicamente el carrito solo puede permanecer quieto en una posición fija si la barra se mantiene horizontal.
+
+La incorporación de acción integral redujo considerablemente el error estacionario y permitió cumplir, en la respuesta de posición, con un sobrepico menor al $15\,\text{\%}$ y un tiempo de establecimiento inferior a $2,5\,\text{s}$ para el ensayo considerado. Sin embargo, el error no se anuló completamente y aparecieron vibraciones asociadas a una acción de control ruidosa, principalmente por el ruido intrínseco del sensor ultrasónico aun con el observador corregido y exigido casi al máximo. Esto evidencia el compromiso entre rapidez de respuesta, rechazo de error estacionario, ruido de medición y esfuerzo de control.
+
+En síntesis, los controladores diseñados permitieron validar experimentalmente las herramientas de realimentación de estados, observación y acción integral, y mostraron la importancia de considerar las limitaciones físicas de la planta al pasar del diseño teórico a la implementación real.
+
+
+
+\end{document}
