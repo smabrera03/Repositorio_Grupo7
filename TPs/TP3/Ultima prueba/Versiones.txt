@@ -308,7 +308,7 @@ Ya tiene demasiado ruido. Volvemos a 11)
 
 							CONTROLADOR FINAL 11)
 
-polos_obs_cont = [-6.50, -6.50, -7.50, -7.50];
+polos_obs_cont = [-6.50, -6.50, -7.50, -7.50]; -0.5
 
 Matrix<4,2> L = {
 0.0000000000, 0.0664765927,
