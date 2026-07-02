@@ -1,0 +1,356 @@
+\section{Controlador por realimentación de estados}
+
+En la presente sección se desarrolla el diseño de controladores por realimentación de variables de estado.
+
+El primer diseño consiste en estabilizar al sistema en torno al punto de equilibrio $ E = \left( p_e = 0\,\text{cm}, ~ \theta_e = 0\text{°} \right)$ naturalmente, sin seguimiento de referencias.
+
+El segundo diseño añade la matriz de \textit{feed-forward} para el seguimiento de referencias $
+r_k =
+\begin{bmatrix}
+p_\text{ref} & \theta_\text{ref}
+\end{bmatrix}^\text{T}
+$.
+
+El tercer y último diseño involucra acción integral.
+
+\subsection{Estabilización al punto de equilibrio}
+\subsubsection{Diseño teórico}
+
+El desarrollo del observador de Luenberger permite obtener mejores estimaciones de las variables de estado a un nivel de bajo ruido en comparación con los valores arrojados por los sensores. De este modo, la ley de control se implementa sobre el vector de estados estimados $\widehat{x_k}$ y se reescribe el modelo discreto de la representación en variables de estado como
+\begin{align*}
+\widehat{x_{k+1}} &= A_d \, \widehat{x_k} + B_d \, u_k\,, \\
+y_k &= C_d \, \widehat{x_k} + D_d \, u_k \, , \\
+u_k &= K \, \widehat{x_k} \, ,
+\end{align*}
+donde
+\[
+\widehat{x}_k,\ \widehat{x}_{k+1} \in \mathbb{R}^4,\qquad
+u_k \in \mathbb{R},\qquad
+y_k \in \mathbb{R}^2,
+\]
+\[
+A_d \in \mathbb{R}^{4\times4},\qquad
+B_d \in \mathbb{R}^{4\times1},\qquad
+C_d \in \mathbb{R}^{2\times4},\qquad
+D_d \in \mathbb{R}^{2\times1},
+\]
+\[
+K \in \mathbb{R}^{1\times4}.
+\]
+
+Por tanto, se obtiene la relación
+\[
+\widehat{x_{k+1}} = \left( A_d + B_d \, K \right) \widehat{x_k}
+\]
+de donde el sistema es estable si los autovalores de $\left( A_d + B_d \, K \right)$ se encuentran dentro del círculo unitario. Esos autovalores representan los polos discretos del sistema a lazo cerrado, por lo que escogiéndolos oportunamente se determinará una matriz $K$ específica para la realimentación.
+
+Para la elección de los polos del controlador se buscó separar la dinámica rápida de la dinámica lenta del sistema, de manera de poder interpretar la respuesta en lazo cerrado en términos de polos dominantes. Con ese criterio, se definió un polo real doble,
+\[
+p_1 = p_2 = -10\,,
+\]
+ubicado considerablemente más a la izquierda que el segundo par de polos. Al tratarse de un polo rápido y bien amortiguado, su contribución a la respuesta transitoria decae en una fracción muy pequeña del tiempo de establecimiento total, por lo que su efecto resulta prácticamente despreciable frente al del resto de la dinámica. De este modo, $p_1$ y $p_2$ no imponen restricciones sobre la velocidad ni la forma de la respuesta global, sino que únicamente garantizan una rápida extinción de los modos asociados a ellos, dejando que la dinámica dominante quede determinada por el segundo par de polos.
+
+Dicho segundo par se planteó en forma compleja conjugada,
+\[
+p_3 = 5\,e^{\,j\,100\text{°}}\,, \qquad p_4 = \overline{p_3}\,,
+\]
+con factor de amortiguamiento $\zeta \approx 0,174$. Esta elección, en lugar de polos puramente reales, responde a la naturaleza misma de la planta \textit{ball and beam}: al tratarse de un sistema con dos grados de libertad acoplados —la posición del carrito sobre la barra y el ángulo de inclinación—, su dinámica natural es oscilatoria, con intercambio de energía entre ambas variables. Forzar un comportamiento críticamente amortiguado (polos reales) resulta poco representativo de esta física y, además, demanda una acción de control excesivamente agresiva. El par complejo conjugado permite capturar este acoplamiento natural y, al ser dominante por sobre $p_1$ y $p_2$, determina el sobrepico y el tiempo de establecimiento del sistema, evitando al mismo tiempo que la acción de control $u_k$ sature los límites mecánicos del servo.
+
+Cabe destacar que estos polos del controlador deben ser, además, más lentos que los del observador, de modo que la estimación de los estados converja antes de que la ley de control actúe sobre ella; de no cumplirse esta relación, la realimentación operaría sobre estimaciones poco confiables, degradando el desempeño del lazo cerrado.
+
+Finalmente, los polos en su forma continua y su equivalente discreto (obtenido mediante $z = e^{s\,T_S}$, con $T_S = 0,02\,\text{s}$) quedan expresados como
+\[
+\begin{aligned}
+p_1 &= p_2 = -10 \,, & z_1 &= z_2 = 0,8187\,, \\[4pt]
+p_3 &= -0,8682 + 4,9240\,j\,, & z_3 &= 0,9780 + 0,0967\,j\,, \\[4pt]
+p_4 &= -0,8682 - 4,9240\,j\,, & z_4 &= 0,9780 - 0,0967\,j\,.
+\end{aligned}
+\]
+
+A partir de estos cuatro polos se calculó la matriz de realimentación mediante la función \texttt{place} de MATLAB, obteniéndose
+\[
+K = \begin{bmatrix} -0,8952 & -0,0586 & -4,9511 & -0,4751 \end{bmatrix}\,.
+\]
+
+\subsubsection{Verificación experimental}
+
+Para verificar el diseño del controlador, se sometió el sistema a condiciones iniciales no nulas y se compararon las variables de estado observadas con las simuladas, tal y como muestra la Figura~\ref{fig:realim-estados}. 
+
+En la Figura~\ref{fig:realim-pos} se muestra que la posición del carrito observada tiene menor sobrepico que la simulada y posee un error no
+nulo en estado estacionario debido al rozamiento estático propio de la planta.
+
+En la Figura~\ref{fig:realim-velang} se muestra que la velocidad angular observada tiene menor sobrepico que la simulada y se establece correctamente sin error en estado estacionario.
+
+La Figura~\ref{fig:realim-ang} muestra que el ángulo de la barra observado es similar al simulado, con algo menos de sobrepico en el caso observado y con un error no nulo en estado estacionario debido a que el controlador intenta corregir el error en estado estacionario de la posición del carrito poniendo una acción de control constante pero insuficiente, debido al rozamiento. Esto hace que el observador persiba una velocidad del carrito constante no nula en estado estacionario, tal y como se muestra en la Figura~\ref{fig:realim-vel}.
+
+Asimismo, la Figura~\ref{fig:realim-uk} muestra la acción de control comandada, en acuerdo con lo dicho en el párrafo anterior.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/realim_img/pos.pdf}
+        \caption{Posición del carrito.}
+        \label{fig:realim-pos}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/realim_img/vel.pdf}
+        \caption{Velocidad del carrito.}
+        \label{fig:realim-vel}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/realim_img/ang.pdf}
+        \caption{Ángulo de la barra.}
+        \label{fig:realim-ang}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/realim_img/velang.pdf}
+        \caption{Velocidad angular de la barra.}
+        \label{fig:realim-velang}
+    \end{subfigure}
+    \caption{Variables de estado del sistema con realimentación de estados a condiciones iniciales no nulas observadas y simuladas.}
+    \label{fig:realim-estados}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/realim_img/uk.pdf}
+    \caption{Acción de control comanda al sistema ante condiciones iniciales no nulas.}
+    \label{fig:realim-uk}
+\end{figure}
+
+\subsection{Seguimiento de referencias}
+\subsubsection{Diseño teórico}
+
+Con el objetivo de habilitar el seguimiento de referencias en el sistema a lazo cerrado, se incorpora un término adicional a la ley de control, ponderado por una matriz de \textit{feed-forward} $F$, que actúa directamente sobre la referencia y se combina con la realimentación de estados. La acción de control resulta entonces
+\[
+u_k = K\,\widehat{x_k} + F\,r_k\,,
+\]
+con
+\[
+F \in \mathbb{R}^{1\times 2}\,, \qquad r_k \in \mathbb{R}^{2}\,.
+\]
+Sustituyendo esta expresión en el modelo discreto del sistema, se obtiene
+\[
+\widehat{x_{k+1}} = (A_d + B_d K)\,\widehat{x_k} + B_d\,F\,r_k\,,
+\]
+a partir de lo cual puede despejarse la condición que debe cumplir $F$ para que la salida converja a la referencia en régimen estacionario:
+\[
+F = \left( C_d\,(\mathbf{I} - (A_d + B_d K))^{-1} B_d \right)^{-1}\,.
+\]
+Dado que se busca seguir simultáneamente una referencia de posición $p$ y una de ángulo $\theta$, y empleando la matriz $K$ obtenida en el diseño previo, el cálculo arroja
+\[
+F = \begin{bmatrix} 4,9511 & 0 \end{bmatrix}\,.
+\]
+Cabe aclarar que esta ``inversa'' no es tal en sentido estricto sino una pseudoinversa, ya que el producto $C_d (\mathbf{I}-(A_d + B_d K))^{-1} B_d$ da como resultado un vector columna de $2\times 1$ y no una matriz cuadrada. Esto trae como consecuencia que el controlador no pueda imponer ambas referencias de forma independiente. La componente correspondiente a la referencia angular resulta nula, lo cual tiene sentido físico: en estado estacionario, el carrito solo puede permanecer quieto en una posición fija si la barra está horizontal ($\theta = 0$), por lo que no es posible sostener una referencia de ángulo distinta de cero sin que el carrito continúe desplazándose indefinidamente.
+
+\subsubsection{Verificación experimental}
+
+Se comandó un tren de escalones asimétricos entre $-8\,$cm y $2\,$cm como referencia para la posición del carrito y una referencia nula para el ángulo de la barra. Las variables de estado observadas y simuladas se muestran en la Figura~\ref{fig:ref-estados}.
+
+En la Figura~\ref{fig:ref-pos} se observa que la posición del carrito sigue la forma general de la referencia, aunque con sobrepicos importantes ante cada cambio de escalón. Además, la respuesta observada presenta un error no nulo en estado estacionario, asociado nuevamente al rozamiento estático de la planta y a la ausencia de acción integral en este diseño.
+
+La Figura~\ref{fig:ref-vel} muestra que la velocidad observada presenta picos pronunciados durante los transitorios, en especial al inicio de cada cambio de referencia. Luego, tiende a valores aproximadamente constantes o cercanos a cero según el tramo, lo cual es consistente con el error estacionario observado en la posición.
+
+En la Figura~\ref{fig:ref-ang} se aprecia que el ángulo de la barra actúa como variable intermedia para desplazar el carrito hacia la nueva referencia. En régimen estacionario, el ángulo observado no siempre converge exactamente a cero, debido a que el controlador debe sostener una inclinación residual para compensar parcialmente los efectos de fricción.
+
+Finalmente, la Figura~\ref{fig:ref-velang} muestra que la velocidad angular concentra su mayor actividad durante los cambios de escalón. La respuesta observada resulta más abrupta que la simulada, lo que evidencia las limitaciones del modelo ideal frente a la dinámica real del actuador, el rozamiento y el ruido de medición.
+
+Asimismo, la Figura~\ref{fig:ref-uk} muestra la acción de control comandada para el seguimiento de referencias, en la cual se observan variaciones abruptas ante cada cambio de escalón y valores sostenidos durante los intervalos en los que el controlador compensa el error estacionario de posición.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/ref_img/pos.pdf}
+        \caption{Posición del carrito.}
+        \label{fig:ref-pos}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/ref_img/vel.pdf}
+        \caption{Velocidad del carrito.}
+        \label{fig:ref-vel}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/ref_img/ang.pdf}
+        \caption{Ángulo de la barra.}
+        \label{fig:ref-ang}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/ref_img/velang.pdf}
+        \caption{Velocidad angular de la barra.}
+        \label{fig:ref-velang}
+    \end{subfigure}
+    \caption{Variables de estado del sistema con realimentación de estados y seguimiento de referencias observadas y simuladas.}
+    \label{fig:ref-estados}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/ref_img/uk.pdf}
+    \caption{Acción de control comandada al sistema durante el seguimiento de referencias.}
+    \label{fig:ref-uk}
+\end{figure}
+
+\subsection{Acción integral}
+
+\subsection{Rediseño del observador}
+
+A la hora de diseñar el control con acción integral, se encontró que el observador introducía demasiado ruido en la acción de control. Por esto se decidió modificar los valores de los polos elegidos para mitigar este efecto. Los nuevos valores en el dominio continuo fueron
+
+\[
+    \begin{bmatrix}
+    -25 & -25 & -10 & -10
+    \end{bmatrix}\, .
+\] 
+
+De esta forma, se consiguió una acción de control más estable. Si bien estos polos son comparables con la dinámica más rápida de la planta, en la práctica el observador funcionó de forma eficiente. Esto puede atribuirse a una identificación incorrecta de la planta, y a que el polo más rápdo de la misma sea en realidad menor. 
+
+\subsubsection{Diseño teórico}
+
+Con el fin de eliminar el error en estado estacionario producido por la fricción —inevitable en el sistema físico—, se incorpora una acción integral al esquema de control. El objetivo de diseño en esta etapa, además de garantizar error nulo en régimen permanente, es lograr una respuesta rápida: tiempo de establecimiento inferior a $2,5\,\text{s}$ y sobrepico inferior al $15\%$.
+
+Para ello se define una nueva variable de estado $q$, correspondiente a la integral del error entre la referencia $r$ y la salida medida:
+\[
+\dot{q} = r - C\,x\,.
+\]
+La acción de control queda entonces compuesta tanto por la realimentación de los estados originales como por este nuevo estado integrador:
+\[
+u = H\,q + K\,x = \begin{bmatrix} K & H \end{bmatrix} \begin{bmatrix} x \\ q \end{bmatrix}\,.
+\]
+
+Incorporando la dinámica del integrador, se obtiene el sistema aumentado
+\[
+\begin{bmatrix} \dot{x} \\ \dot{q} \end{bmatrix}
+=
+\begin{bmatrix} A & 0 \\ -C & 0 \end{bmatrix}
+\begin{bmatrix} x \\ q \end{bmatrix}
++
+\begin{bmatrix} B \\ 0 \end{bmatrix} u
++
+\begin{bmatrix} 0 \\ 1 \end{bmatrix} r\,,
+\]
+y reemplazando la ley de control $u = \begin{bmatrix} K & H \end{bmatrix}\begin{bmatrix} x \\ q \end{bmatrix}$, queda
+\[
+\begin{bmatrix} \dot{x} \\ \dot{q} \end{bmatrix}
+=
+\left(
+\begin{bmatrix} A & 0 \\ -C & 0 \end{bmatrix}
++
+\begin{bmatrix} B \\ 0 \end{bmatrix}
+\begin{bmatrix} K & H \end{bmatrix}
+\right)
+\begin{bmatrix} x \\ q \end{bmatrix}
++
+\begin{bmatrix} 0 \\ 1 \end{bmatrix} r\,.
+\]
+
+Llevando esta formulación a tiempo discreto, con el observador de Luenberger ya incorporado, el sistema aumentado resulta
+\[
+\begin{bmatrix} \widehat{x_{k+1}} \\ q_{k+1} \end{bmatrix}
+=
+\left(
+\underbrace{\begin{bmatrix} A_d & 0 \\ -C_d\,T_s & 1 \end{bmatrix}}_{\widehat{A}_d}
++
+\underbrace{\begin{bmatrix} B_d \\ 0 \end{bmatrix}}_{\widehat{B}_d}
+\underbrace{\begin{bmatrix} K & H \end{bmatrix}}_{\widehat{K}}
+\right)
+\begin{bmatrix} \widehat{x_k} \\ q_k \end{bmatrix}
++
+\begin{bmatrix} 0 \\ 1 \end{bmatrix} r_k\,,
+\]
+donde el estado integrador se actualiza, de forma discreta, mediante
+\[
+q_k = q_{k-1} + T_s\,(r_k - y_k)\,.
+\]
+Al igual que en el diseño anterior, la elección de los autovalores de $\left( \widehat{A}_d + \widehat{B}_d\,\widehat{K} \right)$ —ahora dentro del círculo unitario, en un espacio de estados de dimensión $5$— determina la matriz de ganancias aumentada $\widehat{K} = \begin{bmatrix} K & H \end{bmatrix}$, calculada nuevamente mediante \texttt{place}.
+
+A diferencia del diseño anterior, donde se buscaba estabilizar simultáneamente el ángulo y la posición, en este caso solo se desea controlar la posición $p$ del carrito (el ángulo continúa siendo medido para el observador, pero no se generan referencias para la barra), por lo que $C_d = \begin{bmatrix} 0 & 0 & 1 & 0 \end{bmatrix}$. 
+
+Los polos seleccionados fueron
+\[
+p_1 = -7,00\,; \quad p_2 = -2,80 \,; \quad p_3 = -8,10 \,; \quad p_4 = -2,81 \,; \quad p_5 = -6,00 \,.    
+\]
+
+Discretizando los polos continuos mediante $z = e^{s\,T_s}$, se obtienen los polos discretos
+\[
+z_1 = 0,8694\,; \qquad z_2 = 0,9455\,; \qquad z_3 = 0,8504\,; \quad z_4 = 0,9454\,; \quad z_5 = 0,8869 \, .
+\]
+
+Aplicando \texttt{place} sobre el par $(\widehat{A}_d, \widehat{B}_d)$ con estos polos discretos, se obtuvo la matriz de ganancias aumentada, separada en su componente sobre los estados originales $K$ y su componente sobre el estado integrador $H$:
+\[
+K = \begin{bmatrix} -5,1097 & -0,4708 & -5,9842 & -0,4995 \end{bmatrix}\,, \qquad H = 4,9998\,.
+\]
+Mientras que $K$ pondera los cuatro estados originales del sistema (ángulo, velocidad angular, posición y velocidad), $H$ pondera al estado integrador $q$, es decir, actúa como la ganancia proporcional al error acumulado de posición, siendo la responsable directa de eliminar el error en estado estacionario.
+
+\subsubsection{Verificación experimental}
+
+Se comandó un tren de escalones simétricos entre $-8\,$cm y $8\,$cm como referencia para la posición del carrito. Las variables de estado observadas y simuladas se muestran en la Figura~\ref{fig:ai-estados}, mientras que la acción de control aplicada se presenta en la Figura~\ref{fig:ai-uk}.
+
+En la Figura~\ref{fig:ai-pos} se observa que, a diferencia del caso sin acción integral, la posición del carrito reduce considerablemente el error en estado estacionario, aunque este no llega a ser estrictamente nulo. Para el cambio de referencia de $8\,$cm a $-8\,$cm, y despreciando el ruido de medición, el mínimo observado es cercano a $-9,3\,$cm. Dado que la amplitud del escalón es de $16\,$cm, esto equivale a un sobrepico real de aproximadamente $8\,$\%, menor que el límite de diseño del $15\,$\%. Asimismo, el tiempo de establecimiento se estima en aproximadamente $2,2\,$s, también menor que la especificación de $2,5\,$s. La acción integral es la responsable de esta reducción del error estacionario: mientras existe diferencia entre la referencia y la posición medida, la integral del error se acumula y modifica la acción de control hasta compensar parcialmente los efectos de rozamiento de la planta.
+
+La Figura~\ref{fig:ai-vel} muestra que la velocidad del carrito presenta picos durante los cambios de referencia y luego tiende a reducirse a medida que la posición se establece. Durante el tramo de referencia positiva aparecen oscilaciones superpuestas, asociadas a la vibración mecánica de la barra y no a un cambio sostenido de referencia.
+
+En la Figura~\ref{fig:ai-ang} se aprecia que el ángulo de la barra acompaña los cambios de referencia y presenta oscilaciones más notorias cuando el carrito sigue referencias positivas, correspondientes a la mitad izquierda de la barra según la Figura~\ref{fig:sistema de referencia}. En esa zona, el peso del carrito ejerce un torque sobre la barra que tiende a hacerla caer levemente; sin embargo, la causa principal de las vibraciones observadas es que la acción de control resulta muy ruidosa debido al ruido intrínseco del sensor ultrasónico. Esto ocurre aun habiendo corregido el observador y exigiéndolo casi al máximo, de modo que el servo recibe una señal con variaciones rápidas y las reproduce como oscilaciones mecánicas en la barra.
+
+La Figura~\ref{fig:ai-velang} confirma este comportamiento: la velocidad angular exhibe oscilaciones durante los tramos en los que la barra vibra y picos importantes ante cada cambio de escalón. Estas oscilaciones no aparecen con la misma intensidad en la simulación, ya que el modelo no reproduce completamente la flexibilidad, los juegos mecánicos ni las perturbaciones asociadas al montaje real.
+
+Finalmente, la Figura~\ref{fig:ai-uk} muestra que la acción de control presenta una componente oscilatoria importante mientras el carrito se encuentra en la zona de referencia positiva, justamente donde la vibración de la barra es más notoria. Luego del cambio hacia la referencia negativa, la señal de control realiza una corrección intensa para invertir el movimiento y, posteriormente, converge hacia el valor necesario para sostener el carrito en la nueva posición. Esta evolución es coherente con la acción integral: ante error acumulado, el controlador incrementa o reduce la señal de mando hasta cancelar el error de posición, aunque las vibraciones y el ruido introducen oscilaciones adicionales sobre dicha señal.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/AI_img/pos.pdf}
+        \caption{Posición del carrito.}
+        \label{fig:ai-pos}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/AI_img/vel.pdf}
+        \caption{Velocidad del carrito.}
+        \label{fig:ai-vel}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/AI_img/ang.pdf}
+        \caption{Ángulo de la barra.}
+        \label{fig:ai-ang}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/AI_img/velang.pdf}
+        \caption{Velocidad angular de la barra.}
+        \label{fig:ai-velang}
+    \end{subfigure}
+    \caption{Variables de estado del sistema con acción integral durante el seguimiento de referencias observadas y simuladas.}
+    \label{fig:ai-estados}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/AI_img/uk.pdf}
+    \caption{Acción de control comandada al sistema con acción integral durante el seguimiento de referencias.}
+    \label{fig:ai-uk}
+\end{figure}

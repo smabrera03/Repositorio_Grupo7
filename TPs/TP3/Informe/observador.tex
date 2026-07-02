@@ -1,0 +1,97 @@
+A partir de la representación en espacio de estados descripta en la sección anterior se implementó un obsercador de Luenberger considerando la posición del carro y el ángulo de la barra como salidas del sistema. 
+
+En primer lugar, debe verificarse la observabilidad del sistema, para lo cual es necesario que la matriz de observabilidad $\mathcal{O}$ sea de rango completo. Para un sistema de orden 4, dicha matriz se puede calcular como:
+
+\begin{equation*}
+    \mathcal{O} = 
+    \begin{bmatrix}
+        C \\
+        CA \\ 
+        CA^2 \\
+        CA^3
+    \end{bmatrix}.
+\end{equation*}
+
+En esta ecuación el valor de $C$ depende de qué variables de estado se consideren como salida del sistema (posición, ángulo de la barra o ambas). Analizando el rango de $\mathcal{O}$ para los distintos casos, se obtuvo que el sistema no es observable si solo se considera el ángulo de la barra como salida. Sin embargo, si se considera la posición o la posición y el ángulo de la barra como salidas, el mismo resulta observable.
+
+Paralelamente, se analizó la controlabilidad del sistema a través del rango de la matriz de controlabilidad $\mathcal{C} = \begin{bmatrix}
+    B & AB & A^2B & A^3B
+\end{bmatrix}$. Se obtuvo que para todos los casos el sistema resulta controlable.
+
+Una vez establecido que el sistema es observable se diseñó un observador de Luenberger a través de la técnica de \textit{pole placement} y la función \texttt{place} de \texttt{Matlab}.  
+
+\begin{center}
+\begin{minipage}{0.65\textwidth}
+    \begin{subequations}
+    \begin{align}
+        \hat{x}_{k+1} &= A_d \hat{x}_k + L\left(y_k - \hat{y}_k\right) + B_d u_k 
+        \label{eq:observador 1}
+        \\
+        \hat{y}_k &= C_d \hat{x}_k + D_d u_k
+        \label{eq:observador 2}
+    \end{align}
+    \end{subequations}
+\end{minipage}
+\hfill
+\begin{minipage}{0.30\textwidth}
+\begin{equation}
+e_{k+1} = \left(A_d - L C_d\right)e_k
+\label{eq:error}
+\end{equation}
+\end{minipage}
+\end{center}
+
+Las ecuaciones \ref{eq:observador 1} y \ref{eq:observador 2} definen el observador, donde $\hat{x}_k$ es la estimación del vector de estados $x_k$ en el instante $k$. Se define además el error $e_k$ como $e_k = \hat{x}_k - x_k$, cuya evolución en el tiempo está dada por la \autoref{eq:error}. De esta forma, deben elegirse los valores de $L \in \mathbb{R}^{4 \times 2}$ tales que los autovalores de $A_d - LC_d$ sean más rápidos que las dinámicas de la planta. Sin embargo, los polos no deben ser demasiado rápidos para no añadir mucho ruido en la estimación, por lo cual se eligen autovalores entre 3 y 5 veces más rápidos que las dinámica asociadas a la planta, para luego ajustarlos en función de los gráficos obtenidos. 
+
+Con estas consideraciones se eligieron los polos (en radianes por segundo)
+
+\[
+    \begin{bmatrix}
+    -50 & -50 &-30 & -30
+    \end{bmatrix}
+\]
+
+lo cual da por resultado la siguiente matriz $L$
+\[
+L=
+\begin{bmatrix}
+0      & 0.8886 \\
+0      & 4.9459 \\
+0.8833 & 0 \\
+5.4272 & 0.7189
+\end{bmatrix}
+\]
+
+Para corroborar el buen funciomaniento del observador se realizaron gráficos superponiendo las variables de estado medidas, observadas y simuladas. Como entrada se aplicó un tren de escalones de $\pm \SI{20}{\degree}$ con un período de $\SI{1,2}{\s}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/obs_img/pos.pdf}
+    \caption{Posición del carro}
+    \label{fig:pos_obs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/obs_img/vel.pdf}
+    \caption{Velocidad del carro}
+    \label{fig:vel_obs}
+\end{figure}
+
+No se grafica la estimación de la velocidad a partir de los datos del sensor ya que resultó excesivamente ruidosa y entorpecía la imagen. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/obs_img/ang.pdf}
+    \caption{Ángulo de la barra}
+    \label{fig:ang_obs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/obs_img/velang.pdf}
+    \caption{Velocidad angular de la barra}
+    \label{fig:velang_obs}
+\end{figure}
+
+Se observa que en general la estimación de las variables de estado es similar a la medición y a la simulación. Esto no se cumple para la posición (figura \ref{fig:pos_obs}), lo que se atribuye a las asimetrías y alinealidades de la planta. 
